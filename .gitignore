@@ -51,3 +51,13 @@ SlaUtility.VC.VC.opendb
 SlaUtility/ReadMe.txt
 SlaUtility/SlaUtility.aps
 SlaUtility/SlaUtility.vcxproj.filters
+*.tlog
+*.log
+*.obj
+*.pdb
+*.ipch
+*.pch
+*.exe
+*.ilk
+SlaUtility/Debug/SlaUtility.res
+*.idb
