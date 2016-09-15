@@ -31,4 +31,21 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+
+private:
+   /**
+      Adds content to each combobox control
+   */
+   void AddItemsToComboBoxes(void);
+
+   /**
+   */
+   void InitComboBoxes(void);
+
+   CComboBox m_oCboPortNumber;
+   CComboBox m_oCboBaudRate;
+   CComboBox m_oCboDataBits;
+   CComboBox m_oCboStopBits;
+   CComboBox m_oCboParity;
+   CComboBox m_oCboHandshaking;
 };

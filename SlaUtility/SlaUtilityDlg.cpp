@@ -45,10 +45,6 @@ BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
 
 
-// CSlaUtilityDlg dialog
-
-
-
 CSlaUtilityDlg::CSlaUtilityDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(IDD_SLAUTILITY_DIALOG, pParent)
 {
@@ -58,6 +54,13 @@ CSlaUtilityDlg::CSlaUtilityDlg(CWnd* pParent /*=NULL*/)
 void CSlaUtilityDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+
+   DDX_Control(pDX, IDC_COMBO_PORT_NUMBER, m_oCboPortNumber);
+   DDX_Control(pDX, IDC_COMBO_BAUD_RATE, m_oCboBaudRate);
+   DDX_Control(pDX, IDC_COMBO_DATA_BITS, m_oCboDataBits);
+   DDX_Control(pDX, IDC_COMBO_STOP_BITS, m_oCboStopBits);
+   DDX_Control(pDX, IDC_COMBO_PARITY, m_oCboParity);
+   DDX_Control(pDX, IDC_COMBO_HANDSHAKING, m_oCboHandshaking);
 }
 
 BEGIN_MESSAGE_MAP(CSlaUtilityDlg, CDialogEx)
@@ -98,7 +101,7 @@ BOOL CSlaUtilityDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	// TODO: Add extra initialization here
+   AddItemsToComboBoxes();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -152,3 +155,54 @@ HCURSOR CSlaUtilityDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+void CSlaUtilityDlg::AddItemsToComboBoxes(void)
+{
+   // Baud rate control
+   //
+   m_oCboBaudRate.AddString(CString("300"));
+   m_oCboBaudRate.AddString(CString("600"));
+   m_oCboBaudRate.AddString(CString("1200"));
+   m_oCboBaudRate.AddString(CString("2400"));
+   m_oCboBaudRate.AddString(CString("9600"));
+   m_oCboBaudRate.AddString(CString("14400"));
+   m_oCboBaudRate.AddString(CString("19200"));
+   m_oCboBaudRate.AddString(CString("38400"));
+   m_oCboBaudRate.AddString(CString("57600"));
+   m_oCboBaudRate.AddString(CString("115200"));
+   m_oCboBaudRate.AddString(CString("250000"));
+   m_oCboBaudRate.SetCurSel(m_oCboBaudRate.GetCount() - 1);
+
+   // Data bits control
+   //
+   m_oCboDataBits.AddString(CString("7"));
+   m_oCboDataBits.AddString(CString("8"));
+   m_oCboDataBits.SetCurSel(1);
+
+   // Stop bits control
+   //
+   m_oCboStopBits.AddString(CString("One"));
+   m_oCboStopBits.AddString(CString("OnePointFive"));
+   m_oCboStopBits.AddString(CString("Two"));
+   m_oCboStopBits.SetCurSel(0);
+
+   // Parity control
+   //
+   m_oCboParity.AddString(CString("None"));
+   m_oCboParity.AddString(CString("Even"));
+   m_oCboParity.AddString(CString("Mark"));
+   m_oCboParity.AddString(CString("Odd"));
+   m_oCboParity.AddString(CString("Space"));
+   m_oCboParity.SetCurSel(0);
+
+   //Handshake control
+   //
+   m_oCboHandshaking.AddString(CString("None"));
+   m_oCboHandshaking.AddString(CString("XOnXOff"));
+   m_oCboHandshaking.AddString(CString("RequestToSend"));
+   m_oCboHandshaking.AddString(CString("RequestToSendXOnXOff"));
+   m_oCboHandshaking.SetCurSel(0);
+}
+
+void CSlaUtilityDlg::InitComboBoxes(void)
+{
+}

@@ -54,6 +54,10 @@ BOOL CSlaUtilityApp::InitInstance()
 		return FALSE;
 	}
 
+   // Initialize MFC rich edit control runtime dll, used by the Engine Output Window Class,
+   // and quite possibly later, by the Diagnostics Output.
+   //
+   AfxInitRichEdit();
 
 	AfxEnableControlContainer();
 
