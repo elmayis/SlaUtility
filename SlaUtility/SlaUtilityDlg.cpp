@@ -283,18 +283,18 @@ void CSlaUtilityDlg::InitControlsFromRegistry(void)
    // Retrieve the data bits from the registy
    //
    dwValue = 8;
-   RegGetValue(hKey, CString(), CString("DataBits"), RRF_RT_REG_DWORD, NULL, &dwValue, &dwDwordSize);
+   lResult = RegGetValue(hKey, CString(), CString("DataBits"), RRF_RT_REG_DWORD, NULL, &dwValue, &dwDwordSize);
    sRegValue = CString(std::to_string(dwValue).c_str());
    iItemPos = m_oCboDataBits.FindString(-1, sRegValue);
    if (-1 != iItemPos)
    {
       m_oCboDataBits.SetCurSel(iItemPos);
    }
-   DWORD dwStringSize = 30;
    // Retrieve the stop bits from the registy
    //
+   DWORD dwStringSize = 30;
    sRegValue = CString("One");
-   RegGetValue(hKey, CString(), CString("StopBits"), RRF_RT_REG_SZ, NULL, sRegValue.GetBuffer(dwStringSize), &dwStringSize);
+   lResult = RegGetValue(hKey, CString(), CString("StopBits"), RRF_RT_REG_SZ, NULL, sRegValue.GetBuffer(dwStringSize), &dwStringSize);
    sRegValue.ReleaseBuffer();
    iItemPos = m_oCboStopBits.FindString(-1, sRegValue);
    if (-1 != iItemPos)
@@ -303,8 +303,9 @@ void CSlaUtilityDlg::InitControlsFromRegistry(void)
    }
    // Retrieve the parity from the registy
    //
+   dwStringSize = 30;
    sRegValue = CString("None");
-   RegGetValue(hKey, CString(), CString("Parity"), RRF_RT_REG_SZ, NULL, sRegValue.GetBuffer(dwStringSize), &dwStringSize);
+   lResult = RegGetValue(hKey, CString(), CString("Parity"), RRF_RT_REG_SZ, NULL, sRegValue.GetBuffer(dwStringSize), &dwStringSize);
    sRegValue.ReleaseBuffer();
    iItemPos = m_oCboParity.FindString(-1, sRegValue);
    if (-1 != iItemPos)
@@ -313,8 +314,9 @@ void CSlaUtilityDlg::InitControlsFromRegistry(void)
    }
    // Retrieve the handshaking from the registy
    //
+   dwStringSize = 30;
    sRegValue = CString("None");
-   RegGetValue(hKey, CString(), CString("Handshaking"), RRF_RT_REG_SZ, NULL, sRegValue.GetBuffer(dwStringSize), &dwStringSize);
+   lResult = RegGetValue(hKey, CString(), CString("Handshaking"), RRF_RT_REG_SZ, NULL, sRegValue.GetBuffer(dwStringSize), &dwStringSize);
    sRegValue.ReleaseBuffer();
    iItemPos = m_oCboHandshaking.FindString(-1, sRegValue);
    if (-1 != iItemPos)
