@@ -40,7 +40,12 @@ private:
 
    /**
    */
-   void InitComboBoxes(void);
+   void InitControlsFromRegistry(void);
+
+   /**
+      Creates the subkey if it does not already exist and then opens the key for read/write access
+   */
+   HKEY GetAppSubkey(void);
 
    CComboBox m_oCboPortNumber;
    CComboBox m_oCboBaudRate;

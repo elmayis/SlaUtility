@@ -3,6 +3,7 @@
 //
 
 #include "stdafx.h"
+#include <string>
 #include "SlaUtility.h"
 #include "SlaUtilityDlg.h"
 #include "afxdialogex.h"
@@ -102,7 +103,7 @@ BOOL CSlaUtilityDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
    AddItemsToComboBoxes();
-
+   InitControlsFromRegistry();
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -203,6 +204,97 @@ void CSlaUtilityDlg::AddItemsToComboBoxes(void)
    m_oCboHandshaking.SetCurSel(0);
 }
 
-void CSlaUtilityDlg::InitComboBoxes(void)
+void CSlaUtilityDlg::InitControlsFromRegistry(void)
 {
+   HKEY hKey = GetAppSubkey();
+   if (NULL == hKey) return;
+
+   int iItemPos = 0;
+   DWORD dwDwordSize = sizeof(DWORD);
+   // Retrieve the baud rate from the registry
+   //
+   DWORD dwValue = 250000;
+   LONG lResult = RegGetValue(hKey, CString(), CString("BaudRate"), RRF_RT_REG_DWORD, NULL, &dwValue, &dwDwordSize);
+   if (ERROR_SUCCESS == lResult)
+   {
+      const CString sValue(std::to_string(dwValue).c_str());
+      iItemPos = m_oCboBaudRate.FindString(-1, sValue);
+      if (-1 != iItemPos)
+      {
+         m_oCboBaudRate.SetCurSel(iItemPos);
+      }
+   }
+   // Retrieve the data bits from the registy
+   //
+   dwValue = 8;
+   lResult = RegGetValue(hKey, CString(), CString("DataBits"), RRF_RT_REG_DWORD, NULL, &dwValue, &dwDwordSize);
+   if (ERROR_SUCCESS == lResult)
+   {
+      const CString sValue(std::to_string(dwValue).c_str());
+      iItemPos = m_oCboDataBits.FindString(-1, sValue);
+      if (-1 != iItemPos)
+      {
+         m_oCboDataBits.SetCurSel(iItemPos);
+      }
+   }
+   DWORD dwStringSize = 30;
+   // Retrieve the stop bits from the registy
+   //
+   CString sRegValue("One");
+   lResult = RegGetValue(hKey, CString(), CString("StopBits"), RRF_RT_REG_SZ, NULL, sRegValue.GetBuffer(dwStringSize), &dwStringSize);
+   sRegValue.ReleaseBuffer();
+   if (ERROR_SUCCESS == lResult)
+   {
+      iItemPos = m_oCboStopBits.FindString(-1, sRegValue);
+      if (-1 != iItemPos)
+      {
+         m_oCboStopBits.SetCurSel(iItemPos);
+      }
+   }
+   // Retrieve the parity from the registy
+   //
+   sRegValue = CString("None");
+   lResult = RegGetValue(hKey, CString(), CString("Parity"), RRF_RT_REG_SZ, NULL, sRegValue.GetBuffer(dwStringSize), &dwStringSize);
+   sRegValue.ReleaseBuffer();
+   if (ERROR_SUCCESS == lResult)
+   {
+      iItemPos = m_oCboParity.FindString(-1, sRegValue);
+      if (-1 != iItemPos)
+      {
+         m_oCboParity.SetCurSel(iItemPos);
+      }
+   }
+   // Retrieve the handshaking from the registy
+   //
+   sRegValue = CString("None");
+   lResult = RegGetValue(hKey, CString(), CString("Handshaking"), RRF_RT_REG_SZ, NULL, sRegValue.GetBuffer(dwStringSize), &dwStringSize);
+   sRegValue.ReleaseBuffer();
+   if (ERROR_SUCCESS == lResult)
+   {
+      iItemPos = m_oCboHandshaking.FindString(-1, sRegValue);
+      if (-1 != iItemPos)
+      {
+         m_oCboHandshaking.SetCurSel(iItemPos);
+      }
+   }
+}
+
+HKEY CSlaUtilityDlg::GetAppSubkey(void)
+{
+   CString sAppFullPath;
+   ::GetModuleFileName(NULL, sAppFullPath.GetBuffer(MAX_PATH), MAX_PATH);
+   sAppFullPath.ReleaseBuffer();
+
+   CString sAppName;
+   _tsplitpath_s(sAppFullPath, NULL, 0, NULL, 0, sAppName.GetBuffer(_MAX_FNAME), _MAX_FNAME, NULL, 0);
+   sAppName.ReleaseBuffer();
+
+   const CString sSubkey = CString("SOFTWARE\\") + sAppName;
+
+   HKEY hKey = NULL;
+   LONG lResult = RegOpenKeyEx(HKEY_CURRENT_USER, sSubkey, 0, KEY_WRITE, &hKey);
+   if(lResult == ERROR_SUCCESS) return hKey;
+
+   RegCreateKeyEx(HKEY_CURRENT_USER, sSubkey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL);
+   return hKey;
 }
