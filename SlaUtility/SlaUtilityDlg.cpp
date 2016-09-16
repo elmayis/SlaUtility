@@ -69,6 +69,10 @@ BEGIN_MESSAGE_MAP(CSlaUtilityDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
    ON_CBN_SELCHANGE(IDC_COMBO_BAUD_RATE, &CSlaUtilityDlg::OnCbnSelchangeComboBaudRate)
+   ON_CBN_SELCHANGE(IDC_COMBO_DATA_BITS, &CSlaUtilityDlg::OnCbnSelchangeComboDataBits)
+   ON_CBN_SELCHANGE(IDC_COMBO_STOP_BITS, &CSlaUtilityDlg::OnCbnSelchangeComboStopBits)
+   ON_CBN_SELCHANGE(IDC_COMBO_PARITY, &CSlaUtilityDlg::OnCbnSelchangeComboParity)
+   ON_CBN_SELCHANGE(IDC_COMBO_HANDSHAKING, &CSlaUtilityDlg::OnCbnSelchangeComboHandshaking)
 END_MESSAGE_MAP()
 
 
@@ -163,6 +167,52 @@ void CSlaUtilityDlg::OnCbnSelchangeComboBaudRate()
    m_oCboBaudRate.GetLBText(m_oCboBaudRate.GetCurSel(), sSelection);
    const std::string sValue = sSelection;
    DWORD dwValue = std::stol(sValue);
+   HKEY hKey = GetAppSubkey();
+   if (NULL == hKey) return;
+
+   RegSetValueEx(hKey, "BaudRate", 0, REG_DWORD, reinterpret_cast<BYTE*>(&dwValue), sizeof(dwValue));
+}
+
+void CSlaUtilityDlg::OnCbnSelchangeComboDataBits()
+{
+   CString sSelection;
+   m_oCboDataBits.GetLBText(m_oCboDataBits.GetCurSel(), sSelection);
+   const std::string sValue = sSelection;
+   DWORD dwValue = std::stol(sValue);
+   HKEY hKey = GetAppSubkey();
+   if (NULL == hKey) return;
+
+   RegSetValueEx(hKey, "DataBits", 0, REG_DWORD, reinterpret_cast<BYTE*>(&dwValue), sizeof(dwValue));
+}
+
+void CSlaUtilityDlg::OnCbnSelchangeComboStopBits()
+{
+   CString sSelection;
+   m_oCboStopBits.GetLBText(m_oCboStopBits.GetCurSel(), sSelection);
+   HKEY hKey = GetAppSubkey();
+   if (NULL == hKey) return;
+
+   RegSetValueEx(hKey, "StopBits", 0, REG_SZ, reinterpret_cast<BYTE*>(sSelection.GetBuffer()), sSelection.GetLength() + 1);
+}
+
+void CSlaUtilityDlg::OnCbnSelchangeComboParity()
+{
+   CString sSelection;
+   m_oCboParity.GetLBText(m_oCboParity.GetCurSel(), sSelection);
+   HKEY hKey = GetAppSubkey();
+   if (NULL == hKey) return;
+
+   RegSetValueEx(hKey, "Parity", 0, REG_SZ, reinterpret_cast<BYTE*>(sSelection.GetBuffer()), sSelection.GetLength() + 1);
+}
+
+void CSlaUtilityDlg::OnCbnSelchangeComboHandshaking()
+{
+   CString sSelection;
+   m_oCboHandshaking.GetLBText(m_oCboHandshaking.GetCurSel(), sSelection);
+   HKEY hKey = GetAppSubkey();
+   if (NULL == hKey) return;
+
+   RegSetValueEx(hKey, "Handshaking", 0, REG_SZ, reinterpret_cast<BYTE*>(sSelection.GetBuffer()), sSelection.GetLength() + 1);
 }
 
 void CSlaUtilityDlg::AddItemsToComboBoxes(void)
@@ -223,7 +273,7 @@ void CSlaUtilityDlg::InitControlsFromRegistry(void)
    // Retrieve the baud rate from the registry
    //
    DWORD dwValue = 250000;
-   RegGetValue(hKey, CString(), CString("BaudRate"), RRF_RT_REG_DWORD, NULL, &dwValue, &dwDwordSize);
+   LONG lResult = RegGetValue(hKey, CString(), CString("BaudRate"), RRF_RT_REG_DWORD, NULL, &dwValue, &dwDwordSize);
    CString sRegValue(std::to_string(dwValue).c_str());
    iItemPos = m_oCboBaudRate.FindString(-1, sRegValue);
    if (-1 != iItemPos)
@@ -286,9 +336,9 @@ HKEY CSlaUtilityDlg::GetAppSubkey(void)
    const CString sSubkey = CString("SOFTWARE\\") + sAppName;
 
    HKEY hKey = NULL;
-   LONG lResult = RegOpenKeyEx(HKEY_CURRENT_USER, sSubkey, 0, KEY_WRITE, &hKey);
+   LONG lResult = RegOpenKeyEx(HKEY_CURRENT_USER, sSubkey, 0, KEY_ALL_ACCESS, &hKey);
    if(lResult == ERROR_SUCCESS) return hKey;
 
-   RegCreateKeyEx(HKEY_CURRENT_USER, sSubkey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL);
+   RegCreateKeyEx(HKEY_CURRENT_USER, sSubkey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, NULL);
    return hKey;
 }

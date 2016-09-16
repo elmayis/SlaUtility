@@ -32,6 +32,10 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 
    afx_msg void OnCbnSelchangeComboBaudRate();
+   afx_msg void OnCbnSelchangeComboDataBits();
+   afx_msg void OnCbnSelchangeComboStopBits();
+   afx_msg void OnCbnSelchangeComboParity();
+   afx_msg void OnCbnSelchangeComboHandshaking();
 
    DECLARE_MESSAGE_MAP()
 
