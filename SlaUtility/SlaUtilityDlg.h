@@ -33,6 +33,7 @@ protected:
 
    afx_msg void OnBnClickedButtonSerialPorts();
 
+   afx_msg void OnCbnSelchangeComboPortNumber();
    afx_msg void OnCbnSelchangeComboBaudRate();
    afx_msg void OnCbnSelchangeComboDataBits();
    afx_msg void OnCbnSelchangeComboStopBits();
@@ -51,6 +52,13 @@ private:
       Retrieves data from the registry and applies to the drop down controls
    */
    void InitControlsFromRegistry(void);
+
+   /**
+      Retrieves the port number from the registry
+
+      @return port number or empty string if does not exist
+   */
+   CString RetrievePortNumber(void);
 
    /**
       Creates the subkey if it does not already exist and then opens the key for read/write access

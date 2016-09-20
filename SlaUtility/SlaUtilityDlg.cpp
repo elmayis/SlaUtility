@@ -177,11 +177,11 @@ void CSlaUtilityDlg::OnBnClickedButtonSerialPorts()
       HANDLE hCom =
          CreateFile(sCommPort,
             GENERIC_READ | GENERIC_WRITE,
-            0,      //  must be opened with exclusive-access
-            NULL,   //  default security attributes
-            OPEN_EXISTING, //  must use OPEN_EXISTING
-            0,      //  not overlapped I/O
-            NULL); //  hTemplate must be NULL for comm devices
+            0,                //  must be opened with exclusive-access
+            NULL,             //  default security attributes
+            OPEN_EXISTING,    //  must use OPEN_EXISTING
+            0,                //  not overlapped I/O
+            NULL);            //  hTemplate must be NULL for comm devices
       if (NULL != hCom)
       {
          m_oCboPortNumber.AddString(sNumber);
@@ -189,9 +189,30 @@ void CSlaUtilityDlg::OnBnClickedButtonSerialPorts()
    }
    if (0 != m_oCboPortNumber.GetCount())
    {
-      m_oCboPortNumber.SetCurSel(0);
+      // Make a selection from the registry if possible
+      //
+      const CString sRegPortNumber = RetrievePortNumber();
+      const int iItemPos = m_oCboPortNumber.FindString(-1, sRegPortNumber);
+      if (-1 != iItemPos)
+      {
+         m_oCboPortNumber.SetCurSel(iItemPos);
+      }
+      else
+      {
+         m_oCboPortNumber.SetCurSel(0);
+      }
    }
    EnableControls(true);
+}
+
+void CSlaUtilityDlg::OnCbnSelchangeComboPortNumber()
+{
+   CString sSelection;
+   m_oCboPortNumber.GetLBText(m_oCboPortNumber.GetCurSel(), sSelection);
+   HKEY hKey = GetAppSubkey();
+   if (NULL == hKey) return;
+
+   RegSetValueEx(hKey, "PortNumber", 0, REG_SZ, reinterpret_cast<BYTE*>(sSelection.GetBuffer()), sSelection.GetLength() + 1);
 }
 
 void CSlaUtilityDlg::OnCbnSelchangeComboBaudRate()
@@ -356,6 +377,18 @@ void CSlaUtilityDlg::InitControlsFromRegistry(void)
    {
       m_oCboHandshaking.SetCurSel(iItemPos);
    }
+}
+
+CString CSlaUtilityDlg::RetrievePortNumber(void)
+{
+   HKEY hKey = GetAppSubkey();
+   if (NULL == hKey) return CString();
+
+   DWORD dwStringSize = 30;
+   CString sRegValue;
+   LONG lResult = RegGetValue(hKey, CString(), CString("PortNumber"), RRF_RT_REG_SZ, NULL, sRegValue.GetBuffer(dwStringSize), &dwStringSize);
+   sRegValue.ReleaseBuffer();
+   return sRegValue;
 }
 
 HKEY CSlaUtilityDlg::GetAppSubkey(void)
