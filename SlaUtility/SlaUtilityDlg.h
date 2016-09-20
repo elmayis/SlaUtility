@@ -61,14 +61,19 @@ private:
    bool IsCommEntriesValid(void) const;
 
    /**
-      @return baud rate selected in the control. A zero indicates it is not selected.
+      @return baud rate selected in the control. A -1 indicates it is not selected.
    */
-   DWORD GetSelectedBaudRate(void);
+   int GetSelectedBaudRate(void);
 
    /**
-      @return data bits selected in the control. A zero indicates it is not selected.
+      @return data bits selected in the control. A -1 indicates it is not selected.
    */
-   DWORD GetSelectedDataBits(void);
+   int GetSelectedDataBits(void);
+
+   /**
+   @return stop bits selected in the control. A -1 indicates it is not selected.
+   */
+   int GetSelectedStopBits(void);
 
    /**
       Adds content to each combobox control

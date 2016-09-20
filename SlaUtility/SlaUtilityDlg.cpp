@@ -265,24 +265,24 @@ void CSlaUtilityDlg::OnCbnSelchangeComboPortNumber()
 
 void CSlaUtilityDlg::OnCbnSelchangeComboBaudRate()
 {
-   DWORD dwValue = GetSelectedBaudRate();
-   if (0 == dwValue) return;
+   int iValue = GetSelectedBaudRate();
+   if (-1 == iValue) return;
 
    HKEY hKey = GetAppSubkey();
    if (NULL == hKey) return;
 
-   RegSetValueEx(hKey, "BaudRate", 0, REG_DWORD, reinterpret_cast<BYTE*>(&dwValue), sizeof(dwValue));
+   RegSetValueEx(hKey, "BaudRate", 0, REG_DWORD, reinterpret_cast<BYTE*>(&iValue), sizeof(iValue));
 }
 
 void CSlaUtilityDlg::OnCbnSelchangeComboDataBits()
 {
-   DWORD dwValue = GetSelectedDataBits();
-   if (0 == dwValue) return;
+   int iValue = GetSelectedDataBits();
+   if (-1 == iValue) return;
 
    HKEY hKey = GetAppSubkey();
    if (NULL == hKey) return;
 
-   RegSetValueEx(hKey, "DataBits", 0, REG_DWORD, reinterpret_cast<BYTE*>(&dwValue), sizeof(dwValue));
+   RegSetValueEx(hKey, "DataBits", 0, REG_DWORD, reinterpret_cast<BYTE*>(&iValue), sizeof(iValue));
 }
 
 void CSlaUtilityDlg::OnCbnSelchangeComboStopBits()
@@ -361,30 +361,36 @@ bool CSlaUtilityDlg::IsCommEntriesValid(void) const
    return !sSelection.IsEmpty();
 }
 
-DWORD CSlaUtilityDlg::GetSelectedBaudRate(void)
+int CSlaUtilityDlg::GetSelectedBaudRate(void)
 {
    CString sSelection;
-   DWORD dwValue = 0;
+   int iValue = -1;
    m_oCboBaudRate.GetLBText(m_oCboBaudRate.GetCurSel(), sSelection);
    if(!sSelection.IsEmpty())
    {
       const std::string sValue = sSelection;
-      dwValue = std::stol(sValue);
+      iValue = std::stol(sValue);
    }
-   return dwValue;
+   return iValue;
 }
 
-DWORD CSlaUtilityDlg::GetSelectedDataBits(void)
+int CSlaUtilityDlg::GetSelectedDataBits(void)
 {
    CString sSelection;
-   DWORD dwValue = 0;
+   int iValue = -1;
    m_oCboDataBits.GetLBText(m_oCboDataBits.GetCurSel(), sSelection);
    if (!sSelection.IsEmpty())
    {
       const std::string sValue = sSelection;
-      dwValue = std::stol(sValue);
+      iValue = std::stol(sValue);
    }
-   return dwValue;
+   return iValue;
+}
+
+int CSlaUtilityDlg::GetSelectedStopBits(void)
+{
+   //ONESTOPBIT
+   return -1;
 }
 
 void CSlaUtilityDlg::AddItemsToComboBoxes(void)
