@@ -31,6 +31,8 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 
+   afx_msg void OnBnClickedButtonSerialPorts();
+
    afx_msg void OnCbnSelchangeComboBaudRate();
    afx_msg void OnCbnSelchangeComboDataBits();
    afx_msg void OnCbnSelchangeComboStopBits();
@@ -46,6 +48,7 @@ private:
    void AddItemsToComboBoxes(void);
 
    /**
+      Retrieves data from the registry and applies to the drop down controls
    */
    void InitControlsFromRegistry(void);
 
@@ -54,10 +57,16 @@ private:
    */
    HKEY GetAppSubkey(void);
 
+   /**
+      Enables/disables controls
+   */
+   void EnableControls(bool bEnable);
+
    CComboBox m_oCboPortNumber;
    CComboBox m_oCboBaudRate;
    CComboBox m_oCboDataBits;
    CComboBox m_oCboStopBits;
    CComboBox m_oCboParity;
    CComboBox m_oCboHandshaking;
+   
 };

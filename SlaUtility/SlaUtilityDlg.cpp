@@ -73,6 +73,7 @@ BEGIN_MESSAGE_MAP(CSlaUtilityDlg, CDialogEx)
    ON_CBN_SELCHANGE(IDC_COMBO_STOP_BITS, &CSlaUtilityDlg::OnCbnSelchangeComboStopBits)
    ON_CBN_SELCHANGE(IDC_COMBO_PARITY, &CSlaUtilityDlg::OnCbnSelchangeComboParity)
    ON_CBN_SELCHANGE(IDC_COMBO_HANDSHAKING, &CSlaUtilityDlg::OnCbnSelchangeComboHandshaking)
+   ON_BN_CLICKED(IDC_BUTTON_SERIAL_PORTS, &CSlaUtilityDlg::OnBnClickedButtonSerialPorts)
 END_MESSAGE_MAP()
 
 
@@ -159,6 +160,38 @@ void CSlaUtilityDlg::OnPaint()
 HCURSOR CSlaUtilityDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
+}
+
+void CSlaUtilityDlg::OnBnClickedButtonSerialPorts()
+{
+   EnableControls(false);
+   m_oCboPortNumber.Clear();
+   CString sCommPort;
+   // We will only expect no more than 15 COM ports on a system
+   //
+   for (int iIndex = 1; iIndex <= 15; ++iIndex)
+   {
+      CString sNumber;
+      sNumber.Format("COM%d", iIndex);
+      sCommPort.Format("\\\\.\\%s", sNumber);
+      HANDLE hCom =
+         CreateFile(sCommPort,
+            GENERIC_READ | GENERIC_WRITE,
+            0,      //  must be opened with exclusive-access
+            NULL,   //  default security attributes
+            OPEN_EXISTING, //  must use OPEN_EXISTING
+            0,      //  not overlapped I/O
+            NULL); //  hTemplate must be NULL for comm devices
+      if (NULL != hCom)
+      {
+         m_oCboPortNumber.AddString(sNumber);
+      }
+   }
+   if (0 != m_oCboPortNumber.GetCount())
+   {
+      m_oCboPortNumber.SetCurSel(0);
+   }
+   EnableControls(true);
 }
 
 void CSlaUtilityDlg::OnCbnSelchangeComboBaudRate()
@@ -343,4 +376,21 @@ HKEY CSlaUtilityDlg::GetAppSubkey(void)
 
    RegCreateKeyEx(HKEY_CURRENT_USER, sSubkey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, NULL);
    return hKey;
+}
+
+void CSlaUtilityDlg::EnableControls(bool bEnable)
+{
+   GetDlgItem(IDC_BUTTON_SERIAL_PORTS)->EnableWindow(bEnable);
+   GetDlgItem(IDC_BUTTON_CONNECT)->EnableWindow(bEnable);
+   GetDlgItem(IDC_BUTTON_DISCONNECT)->EnableWindow(bEnable);
+   GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(bEnable);
+   GetDlgItem(IDC_BUTTON_LOAD_FILE)->EnableWindow(bEnable);
+   GetDlgItem(IDC_BUTTON_DOWNLOAD)->EnableWindow(bEnable);
+   GetDlgItem(IDC_EDIT_MANUAL_COMMAND)->EnableWindow(bEnable);
+   m_oCboPortNumber.EnableWindow(bEnable);
+   m_oCboBaudRate.EnableWindow(bEnable);
+   m_oCboDataBits.EnableWindow(bEnable);
+   m_oCboStopBits.EnableWindow(bEnable);
+   m_oCboParity.EnableWindow(bEnable);
+   m_oCboHandshaking.EnableWindow(bEnable);
 }
