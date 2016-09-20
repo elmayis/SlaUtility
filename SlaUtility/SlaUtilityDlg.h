@@ -32,6 +32,8 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 
    afx_msg void OnBnClickedButtonSerialPorts();
+   afx_msg void OnBnClickedButtonConnect();
+   afx_msg void OnBnClickedButtonDisconnect();
 
    afx_msg void OnCbnSelchangeComboPortNumber();
    afx_msg void OnCbnSelchangeComboBaudRate();
@@ -43,6 +45,31 @@ protected:
    DECLARE_MESSAGE_MAP()
 
 private:
+
+   /**
+      Updates the opened COM ports settings
+
+      @return true if successfully updated the COM settings
+   */
+   bool UpdateCommSettings(void);
+
+   /**
+      Validates all of the controls that are required for COM.
+
+      @return true if valid
+   */
+   bool IsCommEntriesValid(void) const;
+
+   /**
+      @return baud rate selected in the control. A zero indicates it is not selected.
+   */
+   DWORD GetSelectedBaudRate(void);
+
+   /**
+      @return data bits selected in the control. A zero indicates it is not selected.
+   */
+   DWORD GetSelectedDataBits(void);
+
    /**
       Adds content to each combobox control
    */
@@ -66,9 +93,14 @@ private:
    HKEY GetAppSubkey(void);
 
    /**
-      Enables/disables controls
+      Enables the controls after the dialog is presented.
    */
-   void EnableControls(bool bEnable);
+   void EnableInitialControls(void);
+
+   /**
+      Enables/disables all of the controls
+   */
+   void EnableAllControls(bool bEnable);
 
    CComboBox m_oCboPortNumber;
    CComboBox m_oCboBaudRate;
@@ -77,4 +109,8 @@ private:
    CComboBox m_oCboParity;
    CComboBox m_oCboHandshaking;
    
+   /**
+      Handle to the COM port to the Arduino
+   */
+   HANDLE m_hComm;
 };

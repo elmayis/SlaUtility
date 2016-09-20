@@ -47,7 +47,8 @@ END_MESSAGE_MAP()
 
 
 CSlaUtilityDlg::CSlaUtilityDlg(CWnd* pParent /*=NULL*/)
-	: CDialogEx(IDD_SLAUTILITY_DIALOG, pParent)
+:  CDialogEx(IDD_SLAUTILITY_DIALOG, pParent),
+   m_hComm(NULL)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -68,13 +69,16 @@ BEGIN_MESSAGE_MAP(CSlaUtilityDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+   ON_BN_CLICKED(IDC_BUTTON_SERIAL_PORTS, &CSlaUtilityDlg::OnBnClickedButtonSerialPorts)
+   ON_BN_CLICKED(IDC_BUTTON_CONNECT, &CSlaUtilityDlg::OnBnClickedButtonConnect)
+   ON_BN_CLICKED(IDC_BUTTON_DISCONNECT, &CSlaUtilityDlg::OnBnClickedButtonDisconnect)
+
    ON_CBN_SELCHANGE(IDC_COMBO_PORT_NUMBER, &CSlaUtilityDlg::OnCbnSelchangeComboPortNumber)
    ON_CBN_SELCHANGE(IDC_COMBO_BAUD_RATE, &CSlaUtilityDlg::OnCbnSelchangeComboBaudRate)
    ON_CBN_SELCHANGE(IDC_COMBO_DATA_BITS, &CSlaUtilityDlg::OnCbnSelchangeComboDataBits)
    ON_CBN_SELCHANGE(IDC_COMBO_STOP_BITS, &CSlaUtilityDlg::OnCbnSelchangeComboStopBits)
    ON_CBN_SELCHANGE(IDC_COMBO_PARITY, &CSlaUtilityDlg::OnCbnSelchangeComboParity)
    ON_CBN_SELCHANGE(IDC_COMBO_HANDSHAKING, &CSlaUtilityDlg::OnCbnSelchangeComboHandshaking)
-   ON_BN_CLICKED(IDC_BUTTON_SERIAL_PORTS, &CSlaUtilityDlg::OnBnClickedButtonSerialPorts)
 END_MESSAGE_MAP()
 
 
@@ -111,6 +115,7 @@ BOOL CSlaUtilityDlg::OnInitDialog()
 
    AddItemsToComboBoxes();
    InitControlsFromRegistry();
+   EnableInitialControls();
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -165,7 +170,7 @@ HCURSOR CSlaUtilityDlg::OnQueryDragIcon()
 
 void CSlaUtilityDlg::OnBnClickedButtonSerialPorts()
 {
-   EnableControls(false);
+   EnableAllControls(false);
    m_oCboPortNumber.Clear();
    CString sCommPort;
    // We will only expect no more than 15 COM ports on a system
@@ -203,7 +208,49 @@ void CSlaUtilityDlg::OnBnClickedButtonSerialPorts()
          m_oCboPortNumber.SetCurSel(0);
       }
    }
-   EnableControls(true);
+   EnableInitialControls();
+   GetDlgItem(IDC_BUTTON_CONNECT)->EnableWindow(true);
+}
+
+void CSlaUtilityDlg::OnBnClickedButtonConnect()
+{
+   if (IsCommEntriesValid())
+   {
+      CString sSelection;
+      CString sCommPort;
+      m_oCboPortNumber.GetLBText(m_oCboPortNumber.GetCurSel(), sSelection);
+      sCommPort.Format("\\\\.\\%s", sSelection);
+      m_hComm =
+         CreateFile(sCommPort,
+            GENERIC_READ | GENERIC_WRITE,
+            0,                //  must be opened with exclusive-access
+            NULL,             //  default security attributes
+            OPEN_EXISTING,    //  must use OPEN_EXISTING
+            0,                //  not overlapped I/O
+            NULL);            //  hTemplate must be NULL for comm devices
+      if (NULL != m_hComm)
+      {
+      }
+      else
+      {
+         CString sMsg;
+         sMsg.Format("CreateFile failed with error %d.\n", GetLastError());
+         AfxMessageBox(sMsg);
+      }
+   }
+   else
+   {
+      AfxMessageBox("All COM entries are not valid.");
+   }
+}
+
+void CSlaUtilityDlg::OnBnClickedButtonDisconnect()
+{
+   if (NULL != m_hComm)
+   {
+      CloseHandle(m_hComm);
+      m_hComm = NULL;
+   }
 }
 
 void CSlaUtilityDlg::OnCbnSelchangeComboPortNumber()
@@ -218,10 +265,9 @@ void CSlaUtilityDlg::OnCbnSelchangeComboPortNumber()
 
 void CSlaUtilityDlg::OnCbnSelchangeComboBaudRate()
 {
-   CString sSelection;
-   m_oCboBaudRate.GetLBText(m_oCboBaudRate.GetCurSel(), sSelection);
-   const std::string sValue = sSelection;
-   DWORD dwValue = std::stol(sValue);
+   DWORD dwValue = GetSelectedBaudRate();
+   if (0 == dwValue) return;
+
    HKEY hKey = GetAppSubkey();
    if (NULL == hKey) return;
 
@@ -230,10 +276,9 @@ void CSlaUtilityDlg::OnCbnSelchangeComboBaudRate()
 
 void CSlaUtilityDlg::OnCbnSelchangeComboDataBits()
 {
-   CString sSelection;
-   m_oCboDataBits.GetLBText(m_oCboDataBits.GetCurSel(), sSelection);
-   const std::string sValue = sSelection;
-   DWORD dwValue = std::stol(sValue);
+   DWORD dwValue = GetSelectedDataBits();
+   if (0 == dwValue) return;
+
    HKEY hKey = GetAppSubkey();
    if (NULL == hKey) return;
 
@@ -268,6 +313,78 @@ void CSlaUtilityDlg::OnCbnSelchangeComboHandshaking()
    if (NULL == hKey) return;
 
    RegSetValueEx(hKey, "Handshaking", 0, REG_SZ, reinterpret_cast<BYTE*>(sSelection.GetBuffer()), sSelection.GetLength() + 1);
+}
+
+bool CSlaUtilityDlg::UpdateCommSettings(void)
+{
+   DCB oDcb;
+   //  Initialize the DCB structure.
+   //
+   SecureZeroMemory(&oDcb, sizeof(DCB));
+   oDcb.DCBlength = sizeof(DCB);
+   // Get the current state of the COM so that we can build upon it.
+   //
+   BOOL bSuccess = GetCommState(m_hComm, &oDcb);
+   if (bSuccess)
+   {
+
+      return true;
+   }
+   else
+   {
+      CString sMsg;
+      sMsg.Format("GetCommState failed with error %d.\n", GetLastError());
+      AfxMessageBox(sMsg);
+      return false;
+   }
+}
+
+bool CSlaUtilityDlg::IsCommEntriesValid(void) const
+{
+   CString sSelection;
+   m_oCboPortNumber.GetLBText(m_oCboPortNumber.GetCurSel(), sSelection);
+   if (sSelection.IsEmpty()) return false;
+
+   m_oCboBaudRate.GetLBText(m_oCboBaudRate.GetCurSel(), sSelection);
+   if (sSelection.IsEmpty()) return false;
+
+   m_oCboDataBits.GetLBText(m_oCboDataBits.GetCurSel(), sSelection);
+   if (sSelection.IsEmpty()) return false;
+
+   m_oCboStopBits.GetLBText(m_oCboStopBits.GetCurSel(), sSelection);
+   if (sSelection.IsEmpty()) return false;
+
+   m_oCboParity.GetLBText(m_oCboParity.GetCurSel(), sSelection);
+   if (sSelection.IsEmpty()) return false;
+
+   m_oCboHandshaking.GetLBText(m_oCboHandshaking.GetCurSel(), sSelection);
+   return !sSelection.IsEmpty();
+}
+
+DWORD CSlaUtilityDlg::GetSelectedBaudRate(void)
+{
+   CString sSelection;
+   DWORD dwValue = 0;
+   m_oCboBaudRate.GetLBText(m_oCboBaudRate.GetCurSel(), sSelection);
+   if(!sSelection.IsEmpty())
+   {
+      const std::string sValue = sSelection;
+      dwValue = std::stol(sValue);
+   }
+   return dwValue;
+}
+
+DWORD CSlaUtilityDlg::GetSelectedDataBits(void)
+{
+   CString sSelection;
+   DWORD dwValue = 0;
+   m_oCboDataBits.GetLBText(m_oCboDataBits.GetCurSel(), sSelection);
+   if (!sSelection.IsEmpty())
+   {
+      const std::string sValue = sSelection;
+      dwValue = std::stol(sValue);
+   }
+   return dwValue;
 }
 
 void CSlaUtilityDlg::AddItemsToComboBoxes(void)
@@ -412,7 +529,14 @@ HKEY CSlaUtilityDlg::GetAppSubkey(void)
    return hKey;
 }
 
-void CSlaUtilityDlg::EnableControls(bool bEnable)
+void CSlaUtilityDlg::EnableInitialControls(void)
+{
+   EnableAllControls(false);
+   GetDlgItem(IDC_BUTTON_SERIAL_PORTS)->EnableWindow(true);
+   m_oCboPortNumber.EnableWindow(true);
+}
+
+void CSlaUtilityDlg::EnableAllControls(bool bEnable)
 {
    GetDlgItem(IDC_BUTTON_SERIAL_PORTS)->EnableWindow(bEnable);
    GetDlgItem(IDC_BUTTON_CONNECT)->EnableWindow(bEnable);
