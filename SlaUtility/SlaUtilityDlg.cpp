@@ -287,32 +287,35 @@ void CSlaUtilityDlg::OnCbnSelchangeComboDataBits()
 
 void CSlaUtilityDlg::OnCbnSelchangeComboStopBits()
 {
-   CString sSelection;
-   m_oCboStopBits.GetLBText(m_oCboStopBits.GetCurSel(), sSelection);
+   int iValue = GetSelectedStopBits();
+   if (-1 == iValue) return;
+
    HKEY hKey = GetAppSubkey();
    if (NULL == hKey) return;
 
-   RegSetValueEx(hKey, "StopBits", 0, REG_SZ, reinterpret_cast<BYTE*>(sSelection.GetBuffer()), sSelection.GetLength() + 1);
+   RegSetValueEx(hKey, "StopBits", 0, REG_DWORD, reinterpret_cast<BYTE*>(&iValue), sizeof(iValue));
 }
 
 void CSlaUtilityDlg::OnCbnSelchangeComboParity()
 {
-   CString sSelection;
-   m_oCboParity.GetLBText(m_oCboParity.GetCurSel(), sSelection);
+   int iValue = GetSelectedParity();
+   if (-1 == iValue) return;
+
    HKEY hKey = GetAppSubkey();
    if (NULL == hKey) return;
 
-   RegSetValueEx(hKey, "Parity", 0, REG_SZ, reinterpret_cast<BYTE*>(sSelection.GetBuffer()), sSelection.GetLength() + 1);
+   RegSetValueEx(hKey, "Parity", 0, REG_DWORD, reinterpret_cast<BYTE*>(&iValue), sizeof(iValue));
 }
 
 void CSlaUtilityDlg::OnCbnSelchangeComboHandshaking()
 {
-   CString sSelection;
-   m_oCboHandshaking.GetLBText(m_oCboHandshaking.GetCurSel(), sSelection);
+   int iValue = GetSelectedHandshaking();
+   if (-1 == iValue) return;
+
    HKEY hKey = GetAppSubkey();
    if (NULL == hKey) return;
 
-   RegSetValueEx(hKey, "Handshaking", 0, REG_SZ, reinterpret_cast<BYTE*>(sSelection.GetBuffer()), sSelection.GetLength() + 1);
+   RegSetValueEx(hKey, "Handshaking", 0, REG_DWORD, reinterpret_cast<BYTE*>(&iValue), sizeof(iValue));
 }
 
 bool CSlaUtilityDlg::UpdateCommSettings(void)
@@ -389,8 +392,83 @@ int CSlaUtilityDlg::GetSelectedDataBits(void)
 
 int CSlaUtilityDlg::GetSelectedStopBits(void)
 {
-   //ONESTOPBIT
-   return -1;
+   CString sSelection;
+   int iValue = -1;
+   m_oCboStopBits.GetLBText(m_oCboStopBits.GetCurSel(), sSelection);
+   if (!sSelection.IsEmpty())
+   {
+      if ("One" == sSelection)
+      {
+         iValue = ONESTOPBIT;
+      }
+      else if ("OnePointFive" == sSelection)
+      {
+         iValue = ONE5STOPBITS;
+      }
+      else if ("Two" == sSelection)
+      {
+         iValue = TWOSTOPBITS;
+      }
+   }
+   return iValue;
+}
+
+int CSlaUtilityDlg::GetSelectedParity(void)
+{
+   CString sSelection;
+   int iValue = -1;
+   m_oCboStopBits.GetLBText(m_oCboStopBits.GetCurSel(), sSelection);
+   if (!sSelection.IsEmpty())
+   {
+      if ("None" == sSelection)
+      {
+         iValue = NOPARITY;
+      }
+      else if ("Even" == sSelection)
+      {
+         iValue = EVENPARITY;
+      }
+      else if ("Mark" == sSelection)
+      {
+         iValue = MARKPARITY;
+      }
+      else if ("Odd" == sSelection)
+      {
+         iValue = ODDPARITY;
+      }
+      else if ("Space" == sSelection)
+      {
+         iValue = SPACEPARITY;
+      }
+   }
+   return iValue;
+}
+
+int CSlaUtilityDlg::GetSelectedHandshaking(void)
+{
+   CString sSelection;
+   int iValue = -1;
+   m_oCboHandshaking.GetLBText(m_oCboHandshaking.GetCurSel(), sSelection);
+   if (!sSelection.IsEmpty())
+   {
+      if ("None" == sSelection)
+      {
+         iValue = 0;
+      }
+      else if ("XOnXOff" == sSelection)
+      {
+         iValue = 1;
+      }
+      else if ("RequestToSend" == sSelection)
+      {
+         iValue = 2;
+      }
+      else if ("RequestToSendXOnXOff" == sSelection)
+      {
+         iValue = 3;
+      }
+   }
+   return iValue;
 }
 
 void CSlaUtilityDlg::AddItemsToComboBoxes(void)

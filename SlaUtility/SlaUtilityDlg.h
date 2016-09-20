@@ -71,9 +71,19 @@ private:
    int GetSelectedDataBits(void);
 
    /**
-   @return stop bits selected in the control. A -1 indicates it is not selected.
+      @return stop bits selected in the control (ONESTOPBIT, ONE5STOPBITS, TWOSTOPBITS). A -1 indicates it is not selected.
    */
    int GetSelectedStopBits(void);
+
+   /**
+      @return parity selected in the control (NOPARITY, ODDPARITY, EVENPARITY, MARKPARITY, SPACEPARITY). A -1 indicates it is not selected.
+   */
+   int GetSelectedParity(void);
+
+   /**
+      @return handshaking selected in the control (0 = None, 1 = Xoff/Xon, 2 = RTS Handshake, 3 = RTS Handshake/Xoff/Xon). A -1 indicates it is not selected.
+   */
+   int GetSelectedHandshaking(void);
 
    /**
       Adds content to each combobox control
