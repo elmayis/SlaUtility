@@ -548,10 +548,27 @@ void CSlaUtilityDlg::InitControlsFromRegistry(void)
    }
    // Retrieve the stop bits from the registy
    //
-   DWORD dwStringSize = 30;
-   sRegValue = CString("One");
-   lResult = RegGetValue(hKey, CString(), CString("StopBits"), RRF_RT_REG_SZ, NULL, sRegValue.GetBuffer(dwStringSize), &dwStringSize);
-   sRegValue.ReleaseBuffer();
+   dwValue = ONESTOPBIT;
+   sRegValue = CString();
+   lResult = RegGetValue(hKey, CString(), CString("StopBits"), RRF_RT_REG_DWORD, NULL, &dwValue, &dwDwordSize);
+   switch (dwValue)
+   {
+   case ONESTOPBIT:
+      {
+         sRegValue = "One";
+         break;
+      }
+   case ONE5STOPBITS:
+      {
+         sRegValue = "OnePointFive";
+         break;
+      }
+   case TWOSTOPBITS:
+      {
+         sRegValue = "Two";
+         break;
+      }
+   }
    iItemPos = m_oCboStopBits.FindString(-1, sRegValue);
    if (-1 != iItemPos)
    {
