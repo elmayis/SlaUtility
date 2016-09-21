@@ -96,6 +96,31 @@ private:
    void InitControlsFromRegistry(void);
 
    /**
+      Retrieves the value from the registry and applies it to the control
+   */
+   void InitBaudRateFromRegistry(HKEY hKey);
+
+   /**
+      Retrieves the value from the registry and applies it to the control
+   */
+   void InitDataBitsFromRegistry(HKEY hKey);
+
+   /**
+      Retrieves the value from the registry and applies it to the control
+   */
+   void InitStopBitsFromRegistry(HKEY hKey);
+
+   /**
+      Retrieves the value from the registry and applies it to the control
+   */
+   void InitParityFromRegistry(HKEY hKey);
+
+   /**
+      Retrieves the value from the registry and applies it to the control
+   */
+   void InitHandshakingFromRegistry(HKEY hKey);
+
+   /**
       Retrieves the port number from the registry
 
       @return port number or empty string if does not exist

@@ -524,33 +524,51 @@ void CSlaUtilityDlg::InitControlsFromRegistry(void)
    HKEY hKey = GetAppSubkey();
    if (NULL == hKey) return;
 
-   int iItemPos = 0;
+   InitBaudRateFromRegistry(hKey);
+   InitDataBitsFromRegistry(hKey);
+   InitStopBitsFromRegistry(hKey);
+   InitParityFromRegistry(hKey);
+   InitHandshakingFromRegistry(hKey);
+}
+
+void CSlaUtilityDlg::InitBaudRateFromRegistry(HKEY hKey)
+{
    DWORD dwDwordSize = sizeof(DWORD);
-   // Retrieve the baud rate from the registry
-   //
    DWORD dwValue = 250000;
+   // lResult used just for debugging at this point
+   //
    LONG lResult = RegGetValue(hKey, CString(), CString("BaudRate"), RRF_RT_REG_DWORD, NULL, &dwValue, &dwDwordSize);
    CString sRegValue(std::to_string(dwValue).c_str());
-   iItemPos = m_oCboBaudRate.FindString(-1, sRegValue);
+   int iItemPos = m_oCboBaudRate.FindString(-1, sRegValue);
    if (-1 != iItemPos)
    {
       m_oCboBaudRate.SetCurSel(iItemPos);
    }
-   // Retrieve the data bits from the registy
+}
+
+void CSlaUtilityDlg::InitDataBitsFromRegistry(HKEY hKey)
+{
+   DWORD dwDwordSize = sizeof(DWORD);
+   DWORD dwValue = 8;
+   // lResult used just for debugging at this point
    //
-   dwValue = 8;
-   lResult = RegGetValue(hKey, CString(), CString("DataBits"), RRF_RT_REG_DWORD, NULL, &dwValue, &dwDwordSize);
-   sRegValue = CString(std::to_string(dwValue).c_str());
-   iItemPos = m_oCboDataBits.FindString(-1, sRegValue);
+   LONG lResult = RegGetValue(hKey, CString(), CString("DataBits"), RRF_RT_REG_DWORD, NULL, &dwValue, &dwDwordSize);
+   CString sRegValue = CString(std::to_string(dwValue).c_str());
+   int iItemPos = m_oCboDataBits.FindString(-1, sRegValue);
    if (-1 != iItemPos)
    {
       m_oCboDataBits.SetCurSel(iItemPos);
    }
-   // Retrieve the stop bits from the registy
+}
+
+void CSlaUtilityDlg::InitStopBitsFromRegistry(HKEY hKey)
+{
+   DWORD dwDwordSize = sizeof(DWORD);
+   DWORD dwValue = ONESTOPBIT;
+   CString sRegValue = "One";
+   // lResult used just for debugging at this point
    //
-   dwValue = ONESTOPBIT;
-   sRegValue = CString();
-   lResult = RegGetValue(hKey, CString(), CString("StopBits"), RRF_RT_REG_DWORD, NULL, &dwValue, &dwDwordSize);
+   LONG lResult = RegGetValue(hKey, CString(), CString("StopBits"), RRF_RT_REG_DWORD, NULL, &dwValue, &dwDwordSize);
    switch (dwValue)
    {
    case ONESTOPBIT:
@@ -569,29 +587,88 @@ void CSlaUtilityDlg::InitControlsFromRegistry(void)
          break;
       }
    }
-   iItemPos = m_oCboStopBits.FindString(-1, sRegValue);
+   int iItemPos = m_oCboStopBits.FindString(-1, sRegValue);
    if (-1 != iItemPos)
    {
       m_oCboStopBits.SetCurSel(iItemPos);
    }
-   // Retrieve the parity from the registy
+}
+
+void CSlaUtilityDlg::InitParityFromRegistry(HKEY hKey)
+{
+   DWORD dwDwordSize = sizeof(DWORD);
+   DWORD dwValue = NOPARITY;
+   CString sRegValue = "None";
+   // lResult used just for debugging at this point
    //
-   dwStringSize = 30;
-   sRegValue = CString("None");
-   lResult = RegGetValue(hKey, CString(), CString("Parity"), RRF_RT_REG_SZ, NULL, sRegValue.GetBuffer(dwStringSize), &dwStringSize);
-   sRegValue.ReleaseBuffer();
-   iItemPos = m_oCboParity.FindString(-1, sRegValue);
+   LONG lResult = RegGetValue(hKey, CString(), CString("Parity"), RRF_RT_REG_DWORD, NULL, &dwValue, &dwDwordSize);
+   switch (dwValue)
+   {
+      case NOPARITY:
+      {
+         sRegValue = "None";
+         break;
+      }
+   case ODDPARITY:
+      {
+         sRegValue = "Odd";
+         break;
+      }
+   case EVENPARITY:
+      {
+         sRegValue = "Even";
+         break;
+      }
+   case MARKPARITY:
+      {
+         sRegValue = "Mark";
+         break;
+      }
+   case SPACEPARITY:
+      {
+         sRegValue = "Space";
+         break;
+      }
+   }
+   int iItemPos = m_oCboParity.FindString(-1, sRegValue);
    if (-1 != iItemPos)
    {
       m_oCboParity.SetCurSel(iItemPos);
    }
-   // Retrieve the handshaking from the registy
+}
+
+void CSlaUtilityDlg::InitHandshakingFromRegistry(HKEY hKey)
+{
+   DWORD dwDwordSize = sizeof(DWORD);
+   DWORD dwValue = NOPARITY;
+   CString sRegValue = "None";
+   // lResult used just for debugging at this point
    //
-   dwStringSize = 30;
-   sRegValue = CString("None");
-   lResult = RegGetValue(hKey, CString(), CString("Handshaking"), RRF_RT_REG_SZ, NULL, sRegValue.GetBuffer(dwStringSize), &dwStringSize);
-   sRegValue.ReleaseBuffer();
-   iItemPos = m_oCboHandshaking.FindString(-1, sRegValue);
+   LONG lResult = RegGetValue(hKey, CString(), CString("Handshaking"), RRF_RT_REG_DWORD, NULL, &dwValue, &dwDwordSize);
+   switch (dwValue)
+   {
+   case 0:
+   {
+      sRegValue = "None";
+      break;
+   }
+   case 1:
+   {
+      sRegValue = "XOnXOff";
+      break;
+   }
+   case 2:
+   {
+      sRegValue = "RequestToSend";
+      break;
+   }
+   case 3:
+   {
+      sRegValue = "RequestToSendXOnXOff";
+      break;
+   }
+   }
+   int iItemPos = m_oCboHandshaking.FindString(-1, sRegValue);
    if (-1 != iItemPos)
    {
       m_oCboHandshaking.SetCurSel(iItemPos);
