@@ -45,6 +45,10 @@ protected:
    DECLARE_MESSAGE_MAP()
 
 private:
+   /**
+      Opens the COM port based on the selected port from the drop down list
+   */
+   bool OpenComm(void);
 
    /**
       Updates the opened COM ports settings

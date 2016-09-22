@@ -216,26 +216,12 @@ void CSlaUtilityDlg::OnBnClickedButtonConnect()
 {
    if (IsCommEntriesValid())
    {
-      CString sSelection;
-      CString sCommPort;
-      m_oCboPortNumber.GetLBText(m_oCboPortNumber.GetCurSel(), sSelection);
-      sCommPort.Format("\\\\.\\%s", sSelection);
-      m_hComm =
-         CreateFile(sCommPort,
-            GENERIC_READ | GENERIC_WRITE,
-            0,                //  must be opened with exclusive-access
-            NULL,             //  default security attributes
-            OPEN_EXISTING,    //  must use OPEN_EXISTING
-            0,                //  not overlapped I/O
-            NULL);            //  hTemplate must be NULL for comm devices
-      if (NULL != m_hComm)
+      if (OpenComm())
       {
-      }
-      else
-      {
-         CString sMsg;
-         sMsg.Format("CreateFile failed with error %d.\n", GetLastError());
-         AfxMessageBox(sMsg);
+         if (UpdateCommSettings())
+         {
+
+         }
       }
    }
    else
@@ -316,6 +302,27 @@ void CSlaUtilityDlg::OnCbnSelchangeComboHandshaking()
    if (NULL == hKey) return;
 
    RegSetValueEx(hKey, "Handshaking", 0, REG_DWORD, reinterpret_cast<BYTE*>(&iValue), sizeof(iValue));
+}
+
+bool CSlaUtilityDlg::OpenComm(void)
+{
+   CString sSelection;
+   CString sCommPort;
+   m_oCboPortNumber.GetLBText(m_oCboPortNumber.GetCurSel(), sSelection);
+   sCommPort.Format("\\\\.\\%s", sSelection);
+   m_hComm =
+      CreateFile(sCommPort,
+         GENERIC_READ | GENERIC_WRITE,
+         0,                //  must be opened with exclusive-access
+         NULL,             //  default security attributes
+         OPEN_EXISTING,    //  must use OPEN_EXISTING
+         0,                //  not overlapped I/O
+         NULL);            //  hTemplate must be NULL for comm devices
+   if (NULL != m_hComm) return true;
+
+   CString sMsg;
+   sMsg.Format("CreateFile failed with error %d.\n", GetLastError());
+   AfxMessageBox(sMsg);
 }
 
 bool CSlaUtilityDlg::UpdateCommSettings(void)
