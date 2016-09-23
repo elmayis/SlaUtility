@@ -63,6 +63,8 @@ void CSlaUtilityDlg::DoDataExchange(CDataExchange* pDX)
    DDX_Control(pDX, IDC_COMBO_STOP_BITS, m_oCboStopBits);
    DDX_Control(pDX, IDC_COMBO_PARITY, m_oCboParity);
    DDX_Control(pDX, IDC_COMBO_HANDSHAKING, m_oCboHandshaking);
+
+   DDX_Control(pDX, IDC_RICHEDIT_OUTPUT, m_oOutputWnd);
 }
 
 BEGIN_MESSAGE_MAP(CSlaUtilityDlg, CDialogEx)
@@ -220,7 +222,22 @@ void CSlaUtilityDlg::OnBnClickedButtonConnect()
       {
          if (UpdateCommSettings())
          {
-
+            OutputMessage("Established connection to the COM port.");
+            // Enable/disable appropriate controls
+            //
+            GetDlgItem(IDC_BUTTON_SERIAL_PORTS)->EnableWindow(false);
+            GetDlgItem(IDC_BUTTON_CONNECT)->EnableWindow(false);
+            GetDlgItem(IDC_BUTTON_DISCONNECT)->EnableWindow(true);
+            GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(true);
+            GetDlgItem(IDC_BUTTON_LOAD_FILE)->EnableWindow(true);
+            GetDlgItem(IDC_BUTTON_DOWNLOAD)->EnableWindow(true);
+            GetDlgItem(IDC_EDIT_MANUAL_COMMAND)->EnableWindow(true);
+            m_oCboPortNumber.EnableWindow(false);
+            m_oCboBaudRate.EnableWindow(false);
+            m_oCboDataBits.EnableWindow(false);
+            m_oCboStopBits.EnableWindow(false);
+            m_oCboParity.EnableWindow(false);
+            m_oCboHandshaking.EnableWindow(false);
          }
       }
    }
@@ -768,4 +785,11 @@ void CSlaUtilityDlg::EnableAllControls(bool bEnable)
    m_oCboStopBits.EnableWindow(bEnable);
    m_oCboParity.EnableWindow(bEnable);
    m_oCboHandshaking.EnableWindow(bEnable);
+}
+
+void CSlaUtilityDlg::OutputMessage(const CString& sMsg)
+{
+   const CString sNewMessage = sMsg + "\n";
+   m_oOutputWnd.SetSel(-1, -1);
+   m_oOutputWnd.ReplaceSel(sNewMessage);
 }

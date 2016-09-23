@@ -146,13 +146,23 @@ private:
    */
    void EnableAllControls(bool bEnable);
 
+   /**
+      Outputs the message to the output window. Appends a new line to the message.
+   */
+   void OutputMessage(const CString& sMsg);
+
    CComboBox m_oCboPortNumber;
    CComboBox m_oCboBaudRate;
    CComboBox m_oCboDataBits;
    CComboBox m_oCboStopBits;
    CComboBox m_oCboParity;
    CComboBox m_oCboHandshaking;
-   
+
+   /**
+      This is the output window
+   */
+   CRichEditCtrl m_oOutputWnd;
+
    /**
       Handle to the COM port to the Arduino
    */
