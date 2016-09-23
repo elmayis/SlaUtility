@@ -14,6 +14,11 @@ CComThread::~CComThread()
 
 }
 
+void CComThread::FireWriteBuffer()
+{
+   PostThreadMessage(WM_WRITE_BUFFER, 0, 0);
+}
+
 BEGIN_MESSAGE_MAP(CComThread, CWinThread)
 END_MESSAGE_MAP()
 
