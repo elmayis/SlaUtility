@@ -4,6 +4,7 @@
 
 #pragma once
 
+class CComThread;
 
 // CSlaUtilityDlg dialog
 class CSlaUtilityDlg : public CDialogEx
@@ -150,6 +151,8 @@ private:
       Outputs the message to the output window. Appends a new line to the message.
    */
    void OutputMessage(const CString& sMsg);
+
+   CComThread* m_poComThread;
 
    CComboBox m_oCboPortNumber;
    CComboBox m_oCboBaudRate;

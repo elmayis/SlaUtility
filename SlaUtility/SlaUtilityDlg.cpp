@@ -4,6 +4,7 @@
 
 #include "stdafx.h"
 #include <string>
+#include "ComThread.h"
 #include "SlaUtility.h"
 #include "SlaUtilityDlg.h"
 #include "afxdialogex.h"
@@ -48,6 +49,7 @@ END_MESSAGE_MAP()
 
 CSlaUtilityDlg::CSlaUtilityDlg(CWnd* pParent /*=NULL*/)
 :  CDialogEx(IDD_SLAUTILITY_DIALOG, pParent),
+   m_poComThread(NULL),
    m_hComm(NULL)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -218,6 +220,14 @@ void CSlaUtilityDlg::OnBnClickedButtonConnect()
 {
    if (IsCommEntriesValid())
    {
+      //mayis
+      m_poComThread = dynamic_cast<CComThread*>(AfxBeginThread(RUNTIME_CLASS(CComThread), THREAD_PRIORITY_NORMAL, 0));
+      if (NULL != m_poComThread)
+      {
+
+      }
+
+
       if (OpenComm())
       {
          if (UpdateCommSettings())
