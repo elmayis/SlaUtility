@@ -181,6 +181,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ComThread.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SlaUtility.h" />
     <ClInclude Include="SlaUtilityDlg.h" />
@@ -188,6 +189,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ComThread.cpp" />
     <ClCompile Include="SlaUtility.cpp" />
     <ClCompile Include="SlaUtilityDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
