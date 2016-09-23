@@ -226,7 +226,7 @@ void CSlaUtilityDlg::OnBnClickedButtonConnect()
    }
    else
    {
-      AfxMessageBox("All COM entries are not valid.");
+      AfxMessageBox("All COM setting entries are not valid.");
    }
 }
 
@@ -323,6 +323,7 @@ bool CSlaUtilityDlg::OpenComm(void)
    CString sMsg;
    sMsg.Format("CreateFile failed with error %d.\n", GetLastError());
    AfxMessageBox(sMsg);
+   return false;
 }
 
 bool CSlaUtilityDlg::UpdateCommSettings(void)
@@ -337,16 +338,52 @@ bool CSlaUtilityDlg::UpdateCommSettings(void)
    BOOL bSuccess = GetCommState(m_hComm, &oDcb);
    if (bSuccess)
    {
+      oDcb.BaudRate = GetSelectedBaudRate();
+      oDcb.ByteSize = GetSelectedDataBits();
+      oDcb.StopBits = GetSelectedStopBits();
+      oDcb.Parity = GetSelectedParity();
+      // The default is no flow control
+      //
+      oDcb.fOutxCtsFlow = false;
+      oDcb.fOutxDsrFlow = false;
+      oDcb.fRtsControl = false;
+      oDcb.fDtrControl = false;
+      oDcb.fOutX = false;
+      oDcb.fInX = false;
+      switch (GetSelectedHandshaking())
+      {
+      case 1:
+      {
+         oDcb.fOutX = true;
+         oDcb.fInX = true;
+         break;
+      }
+      case 2:
+      {
+         oDcb.fRtsControl = true;
+         break;
+      }
+      case 3:
+      {
+         oDcb.fRtsControl = true;
+         oDcb.fOutX = true;
+         oDcb.fInX = true;
+         break;
+      }
+      }
+      if (SetCommState(m_hComm, &oDcb)) return true;
 
-      return true;
+      CString sMsg;
+      sMsg.Format("SetCommState failed with error %d.\n", GetLastError());
+      AfxMessageBox(sMsg);
    }
    else
    {
       CString sMsg;
       sMsg.Format("GetCommState failed with error %d.\n", GetLastError());
       AfxMessageBox(sMsg);
-      return false;
    }
+   return false;
 }
 
 bool CSlaUtilityDlg::IsCommEntriesValid(void) const
@@ -355,23 +392,18 @@ bool CSlaUtilityDlg::IsCommEntriesValid(void) const
    m_oCboPortNumber.GetLBText(m_oCboPortNumber.GetCurSel(), sSelection);
    if (sSelection.IsEmpty()) return false;
 
-   m_oCboBaudRate.GetLBText(m_oCboBaudRate.GetCurSel(), sSelection);
-   if (sSelection.IsEmpty()) return false;
+   if (-1 == GetSelectedBaudRate()) return false;
 
-   m_oCboDataBits.GetLBText(m_oCboDataBits.GetCurSel(), sSelection);
-   if (sSelection.IsEmpty()) return false;
+   if (-1 == GetSelectedDataBits()) return false;
 
-   m_oCboStopBits.GetLBText(m_oCboStopBits.GetCurSel(), sSelection);
-   if (sSelection.IsEmpty()) return false;
+   if (-1 == GetSelectedStopBits()) return false;
 
-   m_oCboParity.GetLBText(m_oCboParity.GetCurSel(), sSelection);
-   if (sSelection.IsEmpty()) return false;
+   if (-1 == GetSelectedParity()) return false;
 
-   m_oCboHandshaking.GetLBText(m_oCboHandshaking.GetCurSel(), sSelection);
-   return !sSelection.IsEmpty();
+   return (-1 != GetSelectedHandshaking());
 }
 
-int CSlaUtilityDlg::GetSelectedBaudRate(void)
+int CSlaUtilityDlg::GetSelectedBaudRate(void) const
 {
    CString sSelection;
    int iValue = -1;
@@ -384,7 +416,7 @@ int CSlaUtilityDlg::GetSelectedBaudRate(void)
    return iValue;
 }
 
-int CSlaUtilityDlg::GetSelectedDataBits(void)
+int CSlaUtilityDlg::GetSelectedDataBits(void) const
 {
    CString sSelection;
    int iValue = -1;
@@ -397,7 +429,7 @@ int CSlaUtilityDlg::GetSelectedDataBits(void)
    return iValue;
 }
 
-int CSlaUtilityDlg::GetSelectedStopBits(void)
+int CSlaUtilityDlg::GetSelectedStopBits(void) const
 {
    CString sSelection;
    int iValue = -1;
@@ -420,7 +452,7 @@ int CSlaUtilityDlg::GetSelectedStopBits(void)
    return iValue;
 }
 
-int CSlaUtilityDlg::GetSelectedParity(void)
+int CSlaUtilityDlg::GetSelectedParity(void) const
 {
    CString sSelection;
    int iValue = -1;
@@ -451,7 +483,7 @@ int CSlaUtilityDlg::GetSelectedParity(void)
    return iValue;
 }
 
-int CSlaUtilityDlg::GetSelectedHandshaking(void)
+int CSlaUtilityDlg::GetSelectedHandshaking(void) const
 {
    CString sSelection;
    int iValue = -1;

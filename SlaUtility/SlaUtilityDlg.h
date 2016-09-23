@@ -67,27 +67,27 @@ private:
    /**
       @return baud rate selected in the control. A -1 indicates it is not selected.
    */
-   int GetSelectedBaudRate(void);
+   int GetSelectedBaudRate(void) const;
 
    /**
       @return data bits selected in the control. A -1 indicates it is not selected.
    */
-   int GetSelectedDataBits(void);
+   int GetSelectedDataBits(void) const;
 
    /**
       @return stop bits selected in the control (ONESTOPBIT, ONE5STOPBITS, TWOSTOPBITS). A -1 indicates it is not selected.
    */
-   int GetSelectedStopBits(void);
+   int GetSelectedStopBits(void) const;
 
    /**
       @return parity selected in the control (NOPARITY, ODDPARITY, EVENPARITY, MARKPARITY, SPACEPARITY). A -1 indicates it is not selected.
    */
-   int GetSelectedParity(void);
+   int GetSelectedParity(void) const;
 
    /**
       @return handshaking selected in the control (0 = None, 1 = Xoff/Xon, 2 = RTS Handshake, 3 = RTS Handshake/Xoff/Xon). A -1 indicates it is not selected.
    */
-   int GetSelectedHandshaking(void);
+   int GetSelectedHandshaking(void) const;
 
    /**
       Adds content to each combobox control
