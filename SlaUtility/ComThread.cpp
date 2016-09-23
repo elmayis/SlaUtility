@@ -26,6 +26,7 @@ void CComThread::FireWriteBuffer()
 }
 
 BEGIN_MESSAGE_MAP(CComThread, CWinThread)
+   ON_THREAD_MESSAGE(WM_CONNECT, OnConnect)
    ON_THREAD_MESSAGE(WM_WRITE_BUFFER, OnWriteBuffer)
 END_MESSAGE_MAP()
 
