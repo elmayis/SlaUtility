@@ -335,7 +335,7 @@ bool CSlaUtilityDlg::OpenComm(void)
          OPEN_EXISTING,    //  must use OPEN_EXISTING
          0,                //  not overlapped I/O
          NULL);            //  hTemplate must be NULL for comm devices
-   if (NULL != m_hComm) return true;
+   if (INVALID_HANDLE_VALUE != m_hComm) return true;
 
    CString sMsg;
    sMsg.Format("CreateFile failed with error %d.\n", GetLastError());
@@ -473,7 +473,7 @@ int CSlaUtilityDlg::GetSelectedParity(void) const
 {
    CString sSelection;
    int iValue = -1;
-   m_oCboStopBits.GetLBText(m_oCboStopBits.GetCurSel(), sSelection);
+   m_oCboParity.GetLBText(m_oCboParity.GetCurSel(), sSelection);
    if (!sSelection.IsEmpty())
    {
       if ("None" == sSelection)
