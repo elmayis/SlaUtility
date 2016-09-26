@@ -35,6 +35,8 @@ protected:
    afx_msg void OnBnClickedButtonSerialPorts();
    afx_msg void OnBnClickedButtonConnect();
    afx_msg void OnBnClickedButtonDisconnect();
+   afx_msg void OnBnClickedLoadFile();
+   afx_msg void OnBnClickedDownload();
 
    afx_msg void OnCbnSelchangeComboPortNumber();
    afx_msg void OnCbnSelchangeComboBaudRate();
@@ -165,6 +167,11 @@ private:
       This is the output window
    */
    CRichEditCtrl m_oOutputWnd;
+
+   /**
+      The full path and file name
+   */
+   CString m_sPathName;
 
    /**
       Handle to the COM port to the Arduino

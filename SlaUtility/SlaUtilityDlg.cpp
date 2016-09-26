@@ -76,6 +76,8 @@ BEGIN_MESSAGE_MAP(CSlaUtilityDlg, CDialogEx)
    ON_BN_CLICKED(IDC_BUTTON_SERIAL_PORTS, &CSlaUtilityDlg::OnBnClickedButtonSerialPorts)
    ON_BN_CLICKED(IDC_BUTTON_CONNECT, &CSlaUtilityDlg::OnBnClickedButtonConnect)
    ON_BN_CLICKED(IDC_BUTTON_DISCONNECT, &CSlaUtilityDlg::OnBnClickedButtonDisconnect)
+   ON_BN_CLICKED(IDC_BUTTON_LOAD_FILE, &CSlaUtilityDlg::OnBnClickedLoadFile)
+   ON_BN_CLICKED(IDC_BUTTON_DOWNLOAD, &CSlaUtilityDlg::OnBnClickedDownload)
 
    ON_CBN_SELCHANGE(IDC_COMBO_PORT_NUMBER, &CSlaUtilityDlg::OnCbnSelchangeComboPortNumber)
    ON_CBN_SELCHANGE(IDC_COMBO_BAUD_RATE, &CSlaUtilityDlg::OnCbnSelchangeComboBaudRate)
@@ -264,6 +266,29 @@ void CSlaUtilityDlg::OnBnClickedButtonDisconnect()
       CloseHandle(m_hComm);
       m_hComm = NULL;
    }
+}
+
+void CSlaUtilityDlg::OnBnClickedLoadFile()
+{
+   m_sPathName.Empty();
+   CFileDialog oBrowse(
+      true,
+      ".ild",
+      CString(),
+      OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_ENABLESIZING,
+      "ILDA File (*.ild)|*.ild|");
+   //oBrowse.m_pOFN->lpstrInitialDir = folder;
+   oBrowse.m_pOFN->lpstrTitle = "Select an ILDA file to download";
+   if (IDOK == oBrowse.DoModal())
+   {
+      m_sPathName = oBrowse.GetPathName();
+      GetDlgItem(IDC_BUTTON_DOWNLOAD)->EnableWindow(true);
+   }
+}
+
+void CSlaUtilityDlg::OnBnClickedDownload()
+{
+
 }
 
 void CSlaUtilityDlg::OnCbnSelchangeComboPortNumber()
