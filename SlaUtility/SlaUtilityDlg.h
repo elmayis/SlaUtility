@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <memory>
+
 class CComThread;
 
 // CSlaUtilityDlg dialog
@@ -166,7 +168,7 @@ private:
 
    static const int WM_ON_COM_CONNECTED = WM_USER + 1;
 
-   CComThread* m_poComThread;
+   std::shared_ptr<CComThread> m_spoComThread;
 
    CComboBox m_oCboPortNumber;
    CComboBox m_oCboBaudRate;

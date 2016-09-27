@@ -47,7 +47,6 @@ END_MESSAGE_MAP()
 
 CSlaUtilityDlg::CSlaUtilityDlg(CWnd* pParent /*=NULL*/)
 :  CDialogEx(IDD_SLAUTILITY_DIALOG, pParent),
-   m_poComThread(NULL),
    m_hComm(NULL)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -221,10 +220,10 @@ void CSlaUtilityDlg::OnBnClickedButtonConnect()
    if (IsCommEntriesValid())
    {
       //mayis
-      m_poComThread = dynamic_cast<CComThread*>(AfxBeginThread(RUNTIME_CLASS(CComThread), THREAD_PRIORITY_NORMAL, 0));
-      if (NULL != m_poComThread)
+      m_spoComThread.reset(dynamic_cast<CComThread*>(AfxBeginThread(RUNTIME_CLASS(CComThread), THREAD_PRIORITY_NORMAL, 0)));
+      if (NULL != m_spoComThread)
       {
-         m_poComThread->FireConnect(std::bind(&CSlaUtilityDlg::FireComConnected, this, std::placeholders::_1));
+         m_spoComThread->FireConnect(std::bind(&CSlaUtilityDlg::FireComConnected, this, std::placeholders::_1));
       }
 
 
@@ -259,6 +258,16 @@ void CSlaUtilityDlg::OnBnClickedButtonConnect()
 
 void CSlaUtilityDlg::OnBnClickedButtonDisconnect()
 {
+   if (m_spoComThread)
+   {
+      ::PostThreadMessage(m_spoComThread->m_nThreadID, WM_QUIT, 0, 0);
+      if (WAIT_TIMEOUT == ::WaitForSingleObject(m_spoComThread->m_hThread, 5000))
+      {
+         OutputMessage("COM thread termination timed out.");
+      }
+      m_spoComThread.reset();
+   }
+
    if (NULL != m_hComm)
    {
       CloseHandle(m_hComm);
