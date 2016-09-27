@@ -3,6 +3,7 @@
 //
 
 #include "stdafx.h"
+#include <functional>
 #include <string>
 #include "ComThread.h"
 #include "SlaUtility.h"
@@ -12,9 +13,6 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-
-
-// CAboutDlg dialog used for App About
 
 class CAboutDlg : public CDialogEx
 {
@@ -226,32 +224,32 @@ void CSlaUtilityDlg::OnBnClickedButtonConnect()
       m_poComThread = dynamic_cast<CComThread*>(AfxBeginThread(RUNTIME_CLASS(CComThread), THREAD_PRIORITY_NORMAL, 0));
       if (NULL != m_poComThread)
       {
-
+         m_poComThread->FireConnect(std::bind(&CSlaUtilityDlg::FireComConnected, this, std::placeholders::_1));
       }
 
 
-      if (OpenComm())
-      {
-         if (UpdateCommSettings())
-         {
-            OutputMessage("Established connection to the COM port.");
-            // Enable/disable appropriate controls
-            //
-            GetDlgItem(IDC_BUTTON_SERIAL_PORTS)->EnableWindow(false);
-            GetDlgItem(IDC_BUTTON_CONNECT)->EnableWindow(false);
-            GetDlgItem(IDC_BUTTON_DISCONNECT)->EnableWindow(true);
-            GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(true);
-            GetDlgItem(IDC_BUTTON_LOAD_FILE)->EnableWindow(true);
-            GetDlgItem(IDC_BUTTON_DOWNLOAD)->EnableWindow(true);
-            GetDlgItem(IDC_EDIT_MANUAL_COMMAND)->EnableWindow(true);
-            m_oCboPortNumber.EnableWindow(false);
-            m_oCboBaudRate.EnableWindow(false);
-            m_oCboDataBits.EnableWindow(false);
-            m_oCboStopBits.EnableWindow(false);
-            m_oCboParity.EnableWindow(false);
-            m_oCboHandshaking.EnableWindow(false);
-         }
-      }
+      //if (OpenComm())
+      //{
+      //   if (UpdateCommSettings())
+      //   {
+      //      OutputMessage("Established connection to the COM port.");
+      //      // Enable/disable appropriate controls
+      //      //
+      //      GetDlgItem(IDC_BUTTON_SERIAL_PORTS)->EnableWindow(false);
+      //      GetDlgItem(IDC_BUTTON_CONNECT)->EnableWindow(false);
+      //      GetDlgItem(IDC_BUTTON_DISCONNECT)->EnableWindow(true);
+      //      GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(true);
+      //      GetDlgItem(IDC_BUTTON_LOAD_FILE)->EnableWindow(true);
+      //      GetDlgItem(IDC_BUTTON_DOWNLOAD)->EnableWindow(true);
+      //      GetDlgItem(IDC_EDIT_MANUAL_COMMAND)->EnableWindow(true);
+      //      m_oCboPortNumber.EnableWindow(false);
+      //      m_oCboBaudRate.EnableWindow(false);
+      //      m_oCboDataBits.EnableWindow(false);
+      //      m_oCboStopBits.EnableWindow(false);
+      //      m_oCboParity.EnableWindow(false);
+      //      m_oCboHandshaking.EnableWindow(false);
+      //   }
+      //}
    }
    else
    {
@@ -354,6 +352,36 @@ void CSlaUtilityDlg::OnCbnSelchangeComboHandshaking()
    if (NULL == hKey) return;
 
    RegSetValueEx(hKey, "Handshaking", 0, REG_DWORD, reinterpret_cast<BYTE*>(&iValue), sizeof(iValue));
+}
+
+LRESULT CSlaUtilityDlg::OnComConnected(WPARAM wParam, LPARAM lParam)
+{
+   if (0 == lParam)
+   {
+      OutputMessage("Established connection to the COM port.");
+      // Enable/disable appropriate controls
+      //
+      GetDlgItem(IDC_BUTTON_SERIAL_PORTS)->EnableWindow(false);
+      GetDlgItem(IDC_BUTTON_CONNECT)->EnableWindow(false);
+      GetDlgItem(IDC_BUTTON_DISCONNECT)->EnableWindow(true);
+      GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(true);
+      GetDlgItem(IDC_BUTTON_LOAD_FILE)->EnableWindow(true);
+      GetDlgItem(IDC_BUTTON_DOWNLOAD)->EnableWindow(true);
+      GetDlgItem(IDC_EDIT_MANUAL_COMMAND)->EnableWindow(true);
+      m_oCboPortNumber.EnableWindow(false);
+      m_oCboBaudRate.EnableWindow(false);
+      m_oCboDataBits.EnableWindow(false);
+      m_oCboStopBits.EnableWindow(false);
+      m_oCboParity.EnableWindow(false);
+      m_oCboHandshaking.EnableWindow(false);
+   }
+   else
+   {
+      CString sMsg;
+      sMsg.Format("COM connection failed with error code %d.", lParam);
+      OutputMessage(sMsg);
+   }
+   return 0;
 }
 
 bool CSlaUtilityDlg::OpenComm(void)
@@ -827,4 +855,9 @@ void CSlaUtilityDlg::OutputMessage(const CString& sMsg)
    const CString sNewMessage = sMsg + "\n";
    m_oOutputWnd.SetSel(-1, -1);
    m_oOutputWnd.ReplaceSel(sNewMessage);
+}
+
+void CSlaUtilityDlg::FireComConnected(int iErrCode)
+{
+   PostMessage(WM_ON_COM_CONNECTED, 0, iErrCode);
 }

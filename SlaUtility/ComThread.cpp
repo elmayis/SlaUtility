@@ -15,9 +15,9 @@ CComThread::~CComThread()
 
 }
 
-void CComThread::FireConnect(ConnectFinishedDelegate oConnectFinishedDelegate)
+void CComThread::FireConnect(const ConnectFinishedDelegate& oConnectFinishedDelegate)
 {
-   PostThreadMessage(WM_CONNECT, 0, reinterpret_cast<LPARAM>(oConnectFinishedDelegate));
+   PostThreadMessage(WM_CONNECT, 0, reinterpret_cast<LPARAM>(&oConnectFinishedDelegate));
 }
 
 void CComThread::FireWriteBuffer()
@@ -42,7 +42,8 @@ int CComThread::ExitInstance()
 
 void CComThread::OnConnect(WPARAM wParam, LPARAM lParam)
 {
-   OnConnectFinished = reinterpret_cast<ConnectFinishedDelegate>(lParam);
+   OnConnectFinished = reinterpret_cast<ConnectFinishedDelegate&>(lParam);
+   OnConnectFinished(-1);
 }
 
 void CComThread::OnWriteBuffer(WPARAM wParam, LPARAM lParam)

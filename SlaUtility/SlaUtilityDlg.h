@@ -45,6 +45,12 @@ protected:
    afx_msg void OnCbnSelchangeComboParity();
    afx_msg void OnCbnSelchangeComboHandshaking();
 
+   /**
+      Event handler that is called when the COM is connected whether pass or fail
+      @param[in] lParam will contain the result code for the connection
+   */
+   afx_msg LRESULT OnComConnected(WPARAM wParam, LPARAM lParam);
+
    DECLARE_MESSAGE_MAP()
 
 private:
@@ -153,6 +159,12 @@ private:
       Outputs the message to the output window. Appends a new line to the message.
    */
    void OutputMessage(const CString& sMsg);
+
+   /**
+   */
+   void FireComConnected(int iErrCode);
+
+   static const int WM_ON_COM_CONNECTED = WM_USER + 1;
 
    CComThread* m_poComThread;
 

@@ -1,18 +1,20 @@
 #pragma once
 
+#include <functional>
+
 /**
 */
 class CComThread : public CWinThread
 {
 public:
-   typedef void(*ConnectFinishedDelegate)(int);
+   typedef std::function<void(int)> ConnectFinishedDelegate;
 
    DECLARE_DYNCREATE(CComThread)
 
    CComThread();
    virtual ~CComThread();
 
-   void FireConnect(ConnectFinishedDelegate oConnectFinishedDelegate);
+   void FireConnect(const ConnectFinishedDelegate& oConnectFinishedDelegate);
 
    /**
       Posts message on thread to write to the buffer to the COM port
