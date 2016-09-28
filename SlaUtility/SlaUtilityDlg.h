@@ -5,6 +5,7 @@
 #pragma once
 
 #include <memory>
+#include "ComSettings.h"
 
 class CComThread;
 
@@ -56,24 +57,19 @@ protected:
    DECLARE_MESSAGE_MAP()
 
 private:
-   /**
-      Opens the COM port based on the selected port from the drop down list
-   */
-   bool OpenComm(void);
-
-   /**
-      Updates the opened COM ports settings
-
-      @return true if successfully updated the COM settings
-   */
-   bool UpdateCommSettings(void);
 
    /**
       Validates all of the controls that are required for COM.
+      @param[out] updated with the valid COM entries
 
       @return true if valid
    */
-   bool IsCommEntriesValid(void) const;
+   bool IsCommEntriesValid(CComSettings& oComSettings) const;
+
+   /**
+      @return COM port number selected in the control. A -1 indicates it is not selected.
+   */
+   int GetSelectedPortNumber(void) const;
 
    /**
       @return baud rate selected in the control. A -1 indicates it is not selected.
@@ -186,9 +182,4 @@ private:
       The full path and file name
    */
    CString m_sPathName;
-
-   /**
-      Handle to the COM port to the Arduino
-   */
-   HANDLE m_hComm;
 };

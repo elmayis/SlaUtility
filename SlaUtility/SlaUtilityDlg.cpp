@@ -46,8 +46,7 @@ END_MESSAGE_MAP()
 
 
 CSlaUtilityDlg::CSlaUtilityDlg(CWnd* pParent /*=NULL*/)
-:  CDialogEx(IDD_SLAUTILITY_DIALOG, pParent),
-   m_hComm(NULL)
+:  CDialogEx(IDD_SLAUTILITY_DIALOG, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -220,13 +219,14 @@ void CSlaUtilityDlg::OnBnClickedButtonSerialPorts()
 
 void CSlaUtilityDlg::OnBnClickedButtonConnect()
 {
-   if (IsCommEntriesValid())
+   CComSettings oComSettings;
+   if (IsCommEntriesValid(oComSettings))
    {
       //mayis
       m_spoComThread.reset(dynamic_cast<CComThread*>(AfxBeginThread(RUNTIME_CLASS(CComThread), THREAD_PRIORITY_NORMAL, 0)));
       if (NULL != m_spoComThread)
       {
-         m_spoComThread->FireConnect(std::bind(&CSlaUtilityDlg::FireComConnected, this, std::placeholders::_1));
+         m_spoComThread->FireConnect(std::bind(&CSlaUtilityDlg::FireComConnected, this, std::placeholders::_1), oComSettings);
       }
 
 
@@ -269,12 +269,6 @@ void CSlaUtilityDlg::OnBnClickedButtonDisconnect()
          OutputMessage("COM thread termination timed out.");
       }
       m_spoComThread.reset();
-   }
-
-   if (NULL != m_hComm)
-   {
-      CloseHandle(m_hComm);
-      m_hComm = NULL;
    }
 }
 
@@ -396,103 +390,43 @@ LRESULT CSlaUtilityDlg::OnComConnected(WPARAM wParam, LPARAM lParam)
    return 0;
 }
 
-bool CSlaUtilityDlg::OpenComm(void)
+bool CSlaUtilityDlg::IsCommEntriesValid(CComSettings& oComSettings) const
 {
-   CString sSelection;
-   CString sCommPort;
-   m_oCboPortNumber.GetLBText(m_oCboPortNumber.GetCurSel(), sSelection);
-   sCommPort.Format("\\\\.\\%s", sSelection);
-   m_hComm =
-      CreateFile(sCommPort,
-         GENERIC_READ | GENERIC_WRITE,
-         0,                //  must be opened with exclusive-access
-         NULL,             //  default security attributes
-         OPEN_EXISTING,    //  must use OPEN_EXISTING
-         0,                //  not overlapped I/O
-         NULL);            //  hTemplate must be NULL for comm devices
-   if (INVALID_HANDLE_VALUE != m_hComm) return true;
+   oComSettings = CComSettings();
+   CComSettings oNewSettings;
+   oNewSettings.m_iPortNumber = GetSelectedPortNumber();
+   if (-1 == oNewSettings.m_iPortNumber) return false;
 
-   CString sMsg;
-   sMsg.Format("CreateFile failed with error %d.\n", GetLastError());
-   AfxMessageBox(sMsg);
-   return false;
+   oNewSettings.m_iBaudRate = GetSelectedBaudRate();
+   if (-1 == oNewSettings.m_iBaudRate) return false;
+
+   oNewSettings.m_iDataBits = GetSelectedDataBits();
+   if (-1 == oNewSettings.m_iDataBits) return false;
+
+   oNewSettings.m_iStopBits = GetSelectedStopBits();
+   if (-1 == oNewSettings.m_iStopBits) return false;
+
+   oNewSettings.m_iParity = GetSelectedParity();
+   if (-1 == oNewSettings.m_iParity) return false;
+
+   oNewSettings.m_iHandshaking = GetSelectedHandshaking();
+   if (-1 != oNewSettings.m_iHandshaking) return false;
+
+   oComSettings = oNewSettings;
+   return true;
 }
 
-bool CSlaUtilityDlg::UpdateCommSettings(void)
-{
-   DCB oDcb;
-   //  Initialize the DCB structure.
-   //
-   SecureZeroMemory(&oDcb, sizeof(DCB));
-   oDcb.DCBlength = sizeof(DCB);
-   // Get the current state of the COM so that we can build upon it.
-   //
-   BOOL bSuccess = GetCommState(m_hComm, &oDcb);
-   if (bSuccess)
-   {
-      oDcb.BaudRate = GetSelectedBaudRate();
-      oDcb.ByteSize = GetSelectedDataBits();
-      oDcb.StopBits = GetSelectedStopBits();
-      oDcb.Parity = GetSelectedParity();
-      // The default is no flow control
-      //
-      oDcb.fOutxCtsFlow = false;
-      oDcb.fOutxDsrFlow = false;
-      oDcb.fRtsControl = false;
-      oDcb.fDtrControl = false;
-      oDcb.fOutX = false;
-      oDcb.fInX = false;
-      switch (GetSelectedHandshaking())
-      {
-      case 1:
-      {
-         oDcb.fOutX = true;
-         oDcb.fInX = true;
-         break;
-      }
-      case 2:
-      {
-         oDcb.fRtsControl = true;
-         break;
-      }
-      case 3:
-      {
-         oDcb.fRtsControl = true;
-         oDcb.fOutX = true;
-         oDcb.fInX = true;
-         break;
-      }
-      }
-      if (SetCommState(m_hComm, &oDcb)) return true;
-
-      CString sMsg;
-      sMsg.Format("SetCommState failed with error %d.\n", GetLastError());
-      AfxMessageBox(sMsg);
-   }
-   else
-   {
-      CString sMsg;
-      sMsg.Format("GetCommState failed with error %d.\n", GetLastError());
-      AfxMessageBox(sMsg);
-   }
-   return false;
-}
-
-bool CSlaUtilityDlg::IsCommEntriesValid(void) const
+int CSlaUtilityDlg::GetSelectedPortNumber(void) const
 {
    CString sSelection;
+   int iValue = -1;
    m_oCboPortNumber.GetLBText(m_oCboPortNumber.GetCurSel(), sSelection);
-   if (sSelection.IsEmpty()) return false;
-
-   if (-1 == GetSelectedBaudRate()) return false;
-
-   if (-1 == GetSelectedDataBits()) return false;
-
-   if (-1 == GetSelectedStopBits()) return false;
-
-   if (-1 == GetSelectedParity()) return false;
-
-   return (-1 != GetSelectedHandshaking());
+   if (!sSelection.IsEmpty())
+   {
+      const std::string sValue = sSelection;
+      iValue = std::stol(sValue);
+   }
+   return iValue;
 }
 
 int CSlaUtilityDlg::GetSelectedBaudRate(void) const

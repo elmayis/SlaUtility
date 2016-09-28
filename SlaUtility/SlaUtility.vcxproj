@@ -181,6 +181,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ComSettings.h" />
     <ClInclude Include="ComThread.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SlaUtility.h" />
