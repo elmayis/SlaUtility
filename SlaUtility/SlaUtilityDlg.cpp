@@ -222,36 +222,17 @@ void CSlaUtilityDlg::OnBnClickedButtonConnect()
    CComSettings oComSettings;
    if (IsCommEntriesValid(oComSettings))
    {
-      //mayis
+      //mayis - may need to keep from starting the thread until adding delegate to output messages
+      //
       m_spoComThread.reset(dynamic_cast<CComThread*>(AfxBeginThread(RUNTIME_CLASS(CComThread), THREAD_PRIORITY_NORMAL, 0)));
       if (NULL != m_spoComThread)
       {
          m_spoComThread->FireConnect(std::bind(&CSlaUtilityDlg::FireComConnected, this, std::placeholders::_1), oComSettings);
       }
-
-
-      //if (OpenComm())
-      //{
-      //   if (UpdateCommSettings())
-      //   {
-      //      OutputMessage("Established connection to the COM port.");
-      //      // Enable/disable appropriate controls
-      //      //
-      //      GetDlgItem(IDC_BUTTON_SERIAL_PORTS)->EnableWindow(false);
-      //      GetDlgItem(IDC_BUTTON_CONNECT)->EnableWindow(false);
-      //      GetDlgItem(IDC_BUTTON_DISCONNECT)->EnableWindow(true);
-      //      GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(true);
-      //      GetDlgItem(IDC_BUTTON_LOAD_FILE)->EnableWindow(true);
-      //      GetDlgItem(IDC_BUTTON_DOWNLOAD)->EnableWindow(true);
-      //      GetDlgItem(IDC_EDIT_MANUAL_COMMAND)->EnableWindow(true);
-      //      m_oCboPortNumber.EnableWindow(false);
-      //      m_oCboBaudRate.EnableWindow(false);
-      //      m_oCboDataBits.EnableWindow(false);
-      //      m_oCboStopBits.EnableWindow(false);
-      //      m_oCboParity.EnableWindow(false);
-      //      m_oCboHandshaking.EnableWindow(false);
-      //   }
-      //}
+      else
+      {
+         AfxMessageBox("Failed to create the COM thread.");
+      }
    }
    else
    {
@@ -362,6 +343,31 @@ void CSlaUtilityDlg::OnCbnSelchangeComboHandshaking()
 
 LRESULT CSlaUtilityDlg::OnComConnected(WPARAM wParam, LPARAM lParam)
 {
+
+   //if (OpenComm())
+   //{
+   //   if (UpdateCommSettings())
+   //   {
+   //      OutputMessage("Established connection to the COM port.");
+   //      // Enable/disable appropriate controls
+   //      //
+   //      GetDlgItem(IDC_BUTTON_SERIAL_PORTS)->EnableWindow(false);
+   //      GetDlgItem(IDC_BUTTON_CONNECT)->EnableWindow(false);
+   //      GetDlgItem(IDC_BUTTON_DISCONNECT)->EnableWindow(true);
+   //      GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(true);
+   //      GetDlgItem(IDC_BUTTON_LOAD_FILE)->EnableWindow(true);
+   //      GetDlgItem(IDC_BUTTON_DOWNLOAD)->EnableWindow(true);
+   //      GetDlgItem(IDC_EDIT_MANUAL_COMMAND)->EnableWindow(true);
+   //      m_oCboPortNumber.EnableWindow(false);
+   //      m_oCboBaudRate.EnableWindow(false);
+   //      m_oCboDataBits.EnableWindow(false);
+   //      m_oCboStopBits.EnableWindow(false);
+   //      m_oCboParity.EnableWindow(false);
+   //      m_oCboHandshaking.EnableWindow(false);
+   //   }
+   //}
+
+
    if (0 == lParam)
    {
       OutputMessage("Established connection to the COM port.");
