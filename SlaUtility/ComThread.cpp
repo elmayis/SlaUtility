@@ -1,5 +1,6 @@
 
 #include "stdafx.h"
+#include <memory>
 #include "ComThread.h"
 
 IMPLEMENT_DYNCREATE(CComThread, CWinThread)
@@ -17,7 +18,8 @@ CComThread::~CComThread()
 
 void CComThread::FireConnect(const ConnectFinishedDelegate& oConnectFinishedDelegate)
 {
-   PostThreadMessage(WM_CONNECT, 0, reinterpret_cast<LPARAM>(&oConnectFinishedDelegate));
+   ConnectFinishedDelegate* poDispatch = new ConnectFinishedDelegate(oConnectFinishedDelegate);
+   PostThreadMessage(WM_CONNECT, reinterpret_cast<WPARAM>(poDispatch), 0);
 }
 
 void CComThread::FireWriteBuffer()
@@ -42,7 +44,8 @@ int CComThread::ExitInstance()
 
 void CComThread::OnConnect(WPARAM wParam, LPARAM lParam)
 {
-   OnConnectFinished = reinterpret_cast<ConnectFinishedDelegate&>(lParam);
+   std::shared_ptr<ConnectFinishedDelegate> spoDispatch(reinterpret_cast<ConnectFinishedDelegate*>(wParam));
+   OnConnectFinished = *spoDispatch;
    OnConnectFinished(-1);
 }
 
