@@ -82,6 +82,9 @@ BEGIN_MESSAGE_MAP(CSlaUtilityDlg, CDialogEx)
    ON_CBN_SELCHANGE(IDC_COMBO_STOP_BITS, &CSlaUtilityDlg::OnCbnSelchangeComboStopBits)
    ON_CBN_SELCHANGE(IDC_COMBO_PARITY, &CSlaUtilityDlg::OnCbnSelchangeComboParity)
    ON_CBN_SELCHANGE(IDC_COMBO_HANDSHAKING, &CSlaUtilityDlg::OnCbnSelchangeComboHandshaking)
+
+   ON_MESSAGE(WM_ON_COM_CONNECTED, OnComConnected)
+
 END_MESSAGE_MAP()
 
 
