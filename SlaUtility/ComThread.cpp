@@ -62,7 +62,6 @@ void CComThread::OnConnect(WPARAM wParam, LPARAM lParam)
    //
    std::shared_ptr<ConnectFinishedDelegate> spoDispatch(reinterpret_cast<ConnectFinishedDelegate*>(wParam));
    m_soComSettings.reset(reinterpret_cast<CComSettings*>(lParam));
-   OnConnectFinished = *spoDispatch;
 
    int iErrCode = CStatusCodes::SC_COM_OPEN_FAILED;
    if (OpenComm())
@@ -74,7 +73,7 @@ void CComThread::OnConnect(WPARAM wParam, LPARAM lParam)
          iErrCode = CStatusCodes::SC_OK;
       }
    }
-   OnConnectFinished(iErrCode);
+   (*spoDispatch)(iErrCode);
 }
 
 void CComThread::OnWriteBuffer(WPARAM wParam, LPARAM lParam)

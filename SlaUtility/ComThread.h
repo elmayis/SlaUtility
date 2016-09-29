@@ -73,11 +73,6 @@ private:
    OutputMsgDelegate OnOutputMsg;
 
    /**
-      Delegate called when the COM connection operation is finished
-   */
-   ConnectFinishedDelegate OnConnectFinished;
-
-   /**
       Settings passed in when requesting connection
    */
    std::shared_ptr<CComSettings> m_soComSettings;
