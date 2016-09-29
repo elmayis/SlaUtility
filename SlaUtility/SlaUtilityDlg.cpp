@@ -8,6 +8,7 @@
 #include "ComThread.h"
 #include "SlaUtility.h"
 #include "SlaUtilityDlg.h"
+#include "StatusCodes.h"
 #include "afxdialogex.h"
 
 #ifdef _DEBUG
@@ -346,32 +347,7 @@ void CSlaUtilityDlg::OnCbnSelchangeComboHandshaking()
 
 LRESULT CSlaUtilityDlg::OnComConnected(WPARAM wParam, LPARAM lParam)
 {
-
-   //if (OpenComm())
-   //{
-   //   if (UpdateCommSettings())
-   //   {
-   //      OutputMessage("Established connection to the COM port.");
-   //      // Enable/disable appropriate controls
-   //      //
-   //      GetDlgItem(IDC_BUTTON_SERIAL_PORTS)->EnableWindow(false);
-   //      GetDlgItem(IDC_BUTTON_CONNECT)->EnableWindow(false);
-   //      GetDlgItem(IDC_BUTTON_DISCONNECT)->EnableWindow(true);
-   //      GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(true);
-   //      GetDlgItem(IDC_BUTTON_LOAD_FILE)->EnableWindow(true);
-   //      GetDlgItem(IDC_BUTTON_DOWNLOAD)->EnableWindow(true);
-   //      GetDlgItem(IDC_EDIT_MANUAL_COMMAND)->EnableWindow(true);
-   //      m_oCboPortNumber.EnableWindow(false);
-   //      m_oCboBaudRate.EnableWindow(false);
-   //      m_oCboDataBits.EnableWindow(false);
-   //      m_oCboStopBits.EnableWindow(false);
-   //      m_oCboParity.EnableWindow(false);
-   //      m_oCboHandshaking.EnableWindow(false);
-   //   }
-   //}
-
-
-   if (0 == lParam)
+   if (CStatusCodes::SC_OK == lParam)
    {
       OutputMessage("Established connection to the COM port.");
       // Enable/disable appropriate controls
@@ -393,7 +369,7 @@ LRESULT CSlaUtilityDlg::OnComConnected(WPARAM wParam, LPARAM lParam)
    else
    {
       CString sMsg;
-      sMsg.Format("COM connection failed with error code %d.", lParam);
+      sMsg.Format("COM connection failed with status code %d.", lParam);
       OutputMessage(sMsg);
    }
    return 0;
@@ -426,7 +402,7 @@ bool CSlaUtilityDlg::IsCommEntriesValid(CComSettings& oComSettings) const
    if (-1 == oNewSettings.m_iParity) return false;
 
    oNewSettings.m_iHandshaking = GetSelectedHandshaking();
-   if (-1 != oNewSettings.m_iHandshaking) return false;
+   if (-1 == oNewSettings.m_iHandshaking) return false;
 
    oComSettings = oNewSettings;
    return true;
@@ -439,7 +415,10 @@ int CSlaUtilityDlg::GetSelectedPortNumber(void) const
    m_oCboPortNumber.GetLBText(m_oCboPortNumber.GetCurSel(), sSelection);
    if (!sSelection.IsEmpty())
    {
-      const std::string sValue = sSelection;
+      // The port number entry is prepended with the text "COM" followed by the port number.
+      // Extract only the port number.
+      //
+      const std::string sValue = sSelection.Mid(3);
       iValue = std::stol(sValue);
    }
    return iValue;

@@ -69,7 +69,6 @@ void CComThread::OnConnect(WPARAM wParam, LPARAM lParam)
       iErrCode = CStatusCodes::SC_COM_SETTINGS_FAILED;
       if (UpdateCommSettings())
       {
-         OnOutputMsg("Established connection to the COM port.", false);
          iErrCode = CStatusCodes::SC_OK;
       }
    }
@@ -84,7 +83,9 @@ void CComThread::OnWriteBuffer(WPARAM wParam, LPARAM lParam)
 bool CComThread::OpenComm(void)
 {
    CString sCommPort;
-   sCommPort.Format("\\\\.\\%s", m_soComSettings->m_iPortNumber);
+   // Need to add the text "COM" to the port number
+   //
+   sCommPort.Format("\\\\.\\COM%d", m_soComSettings->m_iPortNumber);
    m_hComm =
       CreateFile(sCommPort,
          GENERIC_READ | GENERIC_WRITE,
@@ -96,7 +97,7 @@ bool CComThread::OpenComm(void)
    if (INVALID_HANDLE_VALUE != m_hComm) return true;
 
    CString sMsg;
-   sMsg.Format("CreateFile failed with error %d.\n", GetLastError());
+   sMsg.Format("CreateFile failed with Windows error code %d.\n", GetLastError());
    OnOutputMsg(sMsg, true);
    return false;
 }
