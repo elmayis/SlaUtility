@@ -186,6 +186,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SlaUtility.h" />
     <ClInclude Include="SlaUtilityDlg.h" />
+    <ClInclude Include="StatusCodes.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
