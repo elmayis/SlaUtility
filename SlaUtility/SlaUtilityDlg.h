@@ -54,6 +54,12 @@ protected:
    */
    afx_msg LRESULT OnComConnected(WPARAM wParam, LPARAM lParam);
 
+   /**
+      Event handler that is called to output a message to the rich edit control
+      @param[in] lParam will contain the raw pointer to a CString containing the message
+   */
+   afx_msg LRESULT OnOutputMsg(WPARAM wParam, LPARAM lParam);
+
    DECLARE_MESSAGE_MAP()
 
 private:
@@ -159,10 +165,17 @@ private:
    void OutputMessage(const CString& sMsg);
 
    /**
+      Called from the COM thread when the connection operation is finished
    */
    void FireComConnected(int iErrCode);
 
-   static const int WM_ON_COM_CONNECTED = WM_USER + 1;
+   /**
+      Called from the COM thread to output a message to the edit control
+   */
+   void FireOutputMsg(const CString& sMsg);
+
+   static const int WM_ON_COM_CONNECTED   = WM_USER + 1;
+   static const int WM_ON_OUTPUT_MSG      = WM_ON_COM_CONNECTED + 1;
 
    std::shared_ptr<CComThread> m_spoComThread;
 

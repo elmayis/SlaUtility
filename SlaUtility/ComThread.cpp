@@ -18,6 +18,11 @@ CComThread::~CComThread()
    }
 }
 
+void CComThread::SetOutputMsgDelegate(const OutputMsgDelegate& oOutputMsgDelegate)
+{
+   OnOutputMsg = oOutputMsgDelegate;
+}
+
 void CComThread::FireConnect(const ConnectFinishedDelegate& oConnectFinishedDelegate, const CComSettings& oComSettings)
 {
    // Allocate a copy of the delegate on the heap. This needs to be done so that the raw pointer can be

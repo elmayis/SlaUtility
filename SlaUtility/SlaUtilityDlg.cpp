@@ -83,6 +83,7 @@ BEGIN_MESSAGE_MAP(CSlaUtilityDlg, CDialogEx)
    ON_CBN_SELCHANGE(IDC_COMBO_HANDSHAKING, &CSlaUtilityDlg::OnCbnSelchangeComboHandshaking)
 
    ON_MESSAGE(WM_ON_COM_CONNECTED, OnComConnected)
+   ON_MESSAGE(WM_ON_OUTPUT_MSG, OnOutputMsg)
 
 END_MESSAGE_MAP()
 
@@ -224,9 +225,11 @@ void CSlaUtilityDlg::OnBnClickedButtonConnect()
    {
       //mayis - may need to keep from starting the thread until adding delegate to output messages
       //
-      m_spoComThread.reset(dynamic_cast<CComThread*>(AfxBeginThread(RUNTIME_CLASS(CComThread), THREAD_PRIORITY_NORMAL, 0)));
+      m_spoComThread.reset(dynamic_cast<CComThread*>(AfxBeginThread(RUNTIME_CLASS(CComThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED)));
       if (NULL != m_spoComThread)
       {
+         m_spoComThread->SetOutputMsgDelegate(std::bind(&CSlaUtilityDlg::FireOutputMsg, this, std::placeholders::_1));
+         m_spoComThread->ResumeThread();
          m_spoComThread->FireConnect(std::bind(&CSlaUtilityDlg::FireComConnected, this, std::placeholders::_1), oComSettings);
       }
       else
@@ -393,6 +396,13 @@ LRESULT CSlaUtilityDlg::OnComConnected(WPARAM wParam, LPARAM lParam)
       sMsg.Format("COM connection failed with error code %d.", lParam);
       OutputMessage(sMsg);
    }
+   return 0;
+}
+
+LRESULT CSlaUtilityDlg::OnOutputMsg(WPARAM wParam, LPARAM lParam)
+{
+   std::shared_ptr<CString> spoMsg(reinterpret_cast<CString*>(lParam));
+   OutputMessage(*spoMsg);
    return 0;
 }
 
@@ -812,4 +822,14 @@ void CSlaUtilityDlg::OutputMessage(const CString& sMsg)
 void CSlaUtilityDlg::FireComConnected(int iErrCode)
 {
    PostMessage(WM_ON_COM_CONNECTED, 0, iErrCode);
+}
+
+void CSlaUtilityDlg::FireOutputMsg(const CString& sMsg)
+{
+   // Allocate a copy of the delegate on the heap. This needs to be done so that the raw pointer can be
+   // passed to this thread across thread bounderies. The OS layer is only capable of dealing with simple POD.
+   // The pointer will be free'd by the OnConnect message handler.
+   //
+   CString* poMsg = new CString(sMsg);
+   PostMessage(WM_ON_OUTPUT_MSG, 0, reinterpret_cast<LPARAM>(poMsg));
 }

@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include <functional>
@@ -5,17 +6,30 @@
 #include "ComSettings.h"
 
 /**
+   Thread that reads and writes to a COM port
 */
 class CComThread : public CWinThread
 {
 public:
    typedef std::function<void(int)> ConnectFinishedDelegate;
+   typedef std::function<void(const CString&)> OutputMsgDelegate;
 
    DECLARE_DYNCREATE(CComThread)
 
    CComThread();
    virtual ~CComThread();
 
+   /**
+      Synchronous call that sets the delegate that will be called to output a message to the UI
+      @param[in] oOutputMsgDelegate delegate called to output a message to the UI
+   */
+   void SetOutputMsgDelegate(const OutputMsgDelegate& oOutputMsgDelegate);
+
+   /**
+      Asynchronous method that establishes a connection to the port selected in the given settings
+      @param[in] oConnectFinishedDelegate delegate called when the operation is finished
+      @param[in] oComSettings container with all the settings needed to establish communtion with a COM port
+   */
    void FireConnect(const ConnectFinishedDelegate& oConnectFinishedDelegate, const CComSettings& oComSettings);
 
    /**
@@ -52,6 +66,11 @@ private:
    @return true if successfully updated the COM settings
    */
    bool UpdateCommSettings(void);
+
+   /**
+      Delegate called to output messages to the UI
+   */
+   OutputMsgDelegate OnOutputMsg;
 
    /**
       Delegate called when the COM connection operation is finished
