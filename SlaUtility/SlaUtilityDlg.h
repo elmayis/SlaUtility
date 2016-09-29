@@ -56,6 +56,7 @@ protected:
 
    /**
       Event handler that is called to output a message to the rich edit control
+      @param[in] wParam will contain the true or false value
       @param[in] lParam will contain the raw pointer to a CString containing the message
    */
    afx_msg LRESULT OnOutputMsg(WPARAM wParam, LPARAM lParam);
@@ -161,8 +162,10 @@ private:
 
    /**
       Outputs the message to the output window. Appends a new line to the message.
+      @param[in] sMsg message to output to the control
+      @param[in] bPresentModal true to present a modal dialog with the message. Default is false.
    */
-   void OutputMessage(const CString& sMsg);
+   void OutputMessage(const CString& sMsg, bool bPresentModal = false);
 
    /**
       Called from the COM thread when the connection operation is finished
@@ -171,8 +174,10 @@ private:
 
    /**
       Called from the COM thread to output a message to the edit control
+      @param[in] sMsg message to output to the control
+      @param[in] bPresentModal true to present a modal dialog with the message
    */
-   void FireOutputMsg(const CString& sMsg);
+   void FireOutputMsg(const CString& sMsg, bool bPresentModal);
 
    static const int WM_ON_COM_CONNECTED   = WM_USER + 1;
    static const int WM_ON_OUTPUT_MSG      = WM_ON_COM_CONNECTED + 1;
