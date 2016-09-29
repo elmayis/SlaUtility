@@ -12,7 +12,7 @@ class CComThread : public CWinThread
 {
 public:
    typedef std::function<void(int)> ConnectFinishedDelegate;
-   typedef std::function<void(const CString&)> OutputMsgDelegate;
+   typedef std::function<void(const CString&, bool)> OutputMsgDelegate;
 
    DECLARE_DYNCREATE(CComThread)
 

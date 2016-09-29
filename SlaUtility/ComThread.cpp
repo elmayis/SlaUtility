@@ -1,5 +1,6 @@
 
 #include "stdafx.h"
+#include "StatusCodes.h"
 #include "ComThread.h"
 
 IMPLEMENT_DYNCREATE(CComThread, CWinThread)
@@ -62,7 +63,18 @@ void CComThread::OnConnect(WPARAM wParam, LPARAM lParam)
    std::shared_ptr<ConnectFinishedDelegate> spoDispatch(reinterpret_cast<ConnectFinishedDelegate*>(wParam));
    m_soComSettings.reset(reinterpret_cast<CComSettings*>(lParam));
    OnConnectFinished = *spoDispatch;
-   OnConnectFinished(-1);
+
+   int iErrCode = CStatusCodes::SC_COM_OPEN_FAILED;
+   if (OpenComm())
+   {
+      iErrCode = CStatusCodes::SC_COM_SETTINGS_FAILED;
+      if (UpdateCommSettings())
+      {
+         OnOutputMsg("Established connection to the COM port.", false);
+         iErrCode = CStatusCodes::SC_OK;
+      }
+   }
+   OnConnectFinished(iErrCode);
 }
 
 void CComThread::OnWriteBuffer(WPARAM wParam, LPARAM lParam)
@@ -86,7 +98,7 @@ bool CComThread::OpenComm(void)
 
    CString sMsg;
    sMsg.Format("CreateFile failed with error %d.\n", GetLastError());
-   AfxMessageBox(sMsg);
+   OnOutputMsg(sMsg, true);
    return false;
 }
 
@@ -139,13 +151,13 @@ bool CComThread::UpdateCommSettings(void)
 
       CString sMsg;
       sMsg.Format("SetCommState failed with error %d.\n", GetLastError());
-      AfxMessageBox(sMsg);
+      OnOutputMsg(sMsg, true);
    }
    else
    {
       CString sMsg;
       sMsg.Format("GetCommState failed with error %d.\n", GetLastError());
-      AfxMessageBox(sMsg);
+      OnOutputMsg(sMsg, true);
    }
    return false;
 }
