@@ -185,6 +185,7 @@
     <ClInclude Include="ComSettings.h" />
     <ClInclude Include="ComThread.h" />
     <ClInclude Include="ComWriteThread.h" />
+    <ClInclude Include="Delegates.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SlaUtility.h" />
     <ClInclude Include="SlaUtilityDlg.h" />
