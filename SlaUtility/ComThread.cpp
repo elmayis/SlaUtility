@@ -1,6 +1,8 @@
 
 #include "stdafx.h"
 #include "StatusCodes.h"
+#include "ComReadThread.h"
+#include "ComWriteThread.h"
 #include "ComThread.h"
 
 IMPLEMENT_DYNCREATE(CComThread, CWinThread)
@@ -69,7 +71,33 @@ void CComThread::OnConnect(WPARAM wParam, LPARAM lParam)
       iErrCode = CStatusCodes::SC_COM_SETTINGS_FAILED;
       if (UpdateCommSettings())
       {
-         iErrCode = CStatusCodes::SC_OK;
+         m_spoComReadThread.reset(dynamic_cast<CComReadThread*>(AfxBeginThread(RUNTIME_CLASS(CComReadThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED)));
+         if (NULL != m_spoComReadThread)
+         {
+            m_spoComWriteThread.reset(dynamic_cast<CComWriteThread*>(AfxBeginThread(RUNTIME_CLASS(CComWriteThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED)));
+            if (NULL != m_spoComWriteThread)
+            {
+               m_spoComReadThread->SetComHandle(m_hComm);
+               m_spoComReadThread->SetOutputMsgDelegate(OnOutputMsg);
+               m_spoComWriteThread->SetComHandle(m_hComm);
+               m_spoComWriteThread->SetOutputMsgDelegate(OnOutputMsg);
+               // Start the threads pumping
+               //
+               m_spoComReadThread->ResumeThread();
+               m_spoComWriteThread->ResumeThread();
+               iErrCode = CStatusCodes::SC_OK;
+            }
+            else
+            {
+               iErrCode = CStatusCodes::SC_COM_WRITE_THREAD_FAILED;
+               OnOutputMsg("Failed to create the COM write thread.", true);
+            }
+         }
+         else
+         {
+            iErrCode = CStatusCodes::SC_COM_READ_THREAD_FAILED;
+            OnOutputMsg("Failed to create the COM read thread.", true);
+         }
       }
    }
    (*spoDispatch)(iErrCode);

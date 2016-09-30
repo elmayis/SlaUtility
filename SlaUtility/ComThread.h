@@ -5,6 +5,9 @@
 #include <memory>
 #include "ComSettings.h"
 
+class CComReadThread;
+class CComWriteThread;
+
 /**
    Thread that reads and writes to a COM port
 */
@@ -71,6 +74,16 @@ private:
       Delegate called to output messages to the UI
    */
    OutputMsgDelegate OnOutputMsg;
+
+   /*
+   Thread that handles reading from the COM port
+   */
+   std::shared_ptr<CComReadThread> m_spoComReadThread;
+
+   /*
+   Thread that handles writing to the COM port
+   */
+   std::shared_ptr<CComWriteThread> m_spoComWriteThread;
 
    /**
       Settings passed in when requesting connection
