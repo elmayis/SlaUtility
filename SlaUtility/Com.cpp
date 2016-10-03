@@ -61,9 +61,16 @@ CStatusCodes::ECodes CCom::Connect(const CComSettings& oComSettings)
    return eErrCode;
 }
 
-void CCom::FireWriteBuffer()
+void CCom::FireWrite(const WriteFinishedDelegate& oWriteFinishedDelegate, const CString& sBuffer)
 {
-
+   if (m_spoComWriteThread)
+   {
+      m_spoComWriteThread->FireWrite(oWriteFinishedDelegate, sBuffer);
+   }
+   else
+   {
+      OnOutputMsg("The COM write thread is not instantiated. Could not write to the COM.", true);
+   }
 }
 
 bool CCom::OpenComm(void)

@@ -28,9 +28,11 @@ public:
    CStatusCodes::ECodes Connect(const CComSettings& oComSettings);
 
    /**
-      Posts message on thread to write to the buffer to the COM port
+      Asynchronously writes the text to the opened COM port using the writing thread
+      @param[in] oWriteFinishedDelegate delegate called when the operation is finished
+      @param[in] sBuffer contains the text to write to the COM port
    */
-   void FireWriteBuffer();
+   void FireWrite(const WriteFinishedDelegate& oWriteFinishedDelegate, const CString& sBuffer);
 
 private:
 

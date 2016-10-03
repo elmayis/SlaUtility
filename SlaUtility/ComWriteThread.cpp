@@ -1,5 +1,6 @@
 
 #include "stdafx.h"
+#include <memory>
 #include "StatusCodes.h"
 #include "ComWriteThread.h"
 
@@ -24,9 +25,15 @@ void CComWriteThread::SetOutputMsgDelegate(const OutputMsgDelegate& oOutputMsgDe
    OnOutputMsg = oOutputMsgDelegate;
 }
 
-void CComWriteThread::FireWriteBuffer()
+void CComWriteThread::FireWrite(const WriteFinishedDelegate& oWriteFinishedDelegate, const CString& sBuffer)
 {
-   PostThreadMessage(WM_WRITE_BUFFER, 0, 0);
+   // Allocate a copy of the delegate on the heap. This needs to be done so that the raw pointer can be
+   // passed to this thread across thread bounderies. The OS layer is only capable of dealing with simple POD.
+   // The pointer will be free'd by the OnConnect message handler.
+   //
+   WriteFinishedDelegate* poDispatch = new WriteFinishedDelegate(oWriteFinishedDelegate);
+   CString* poBuffer = new CString(sBuffer);
+   PostThreadMessage(WM_WRITE_BUFFER, reinterpret_cast<WPARAM>(poDispatch), reinterpret_cast<LPARAM>(poBuffer));
 }
 
 BEGIN_MESSAGE_MAP(CComWriteThread, CWinThread)
@@ -45,5 +52,11 @@ int CComWriteThread::ExitInstance()
 
 void CComWriteThread::OnWriteBuffer(WPARAM wParam, LPARAM lParam)
 {
+   // Cast in the WriteFinishedDelegate handle. It is required that this thing be on the heap. Wrap it in a shared_ptr
+   // so that it is destroyed upon function exit.
+   //
+   std::shared_ptr<WriteFinishedDelegate> spoDispatch(reinterpret_cast<WriteFinishedDelegate*>(wParam));
+   std::shared_ptr<CString> spoBuffer(reinterpret_cast<CString*>(lParam));
+
 
 }

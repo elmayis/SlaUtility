@@ -27,8 +27,10 @@ public:
 
    /*
    Posts message on thread to write to the buffer to the COM port
+   @param[in] oWriteFinishedDelegate delegate called when the operation is finished
+   @param[in] sBuffer contains the text to write to the COM port
    */
-   void FireWriteBuffer();
+   void FireWrite(const WriteFinishedDelegate& oWriteFinishedDelegate, const CString& sBuffer);
 
 protected:
    virtual BOOL InitInstance();
