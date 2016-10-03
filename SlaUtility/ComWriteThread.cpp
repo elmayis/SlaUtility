@@ -58,5 +58,12 @@ void CComWriteThread::OnWriteBuffer(WPARAM wParam, LPARAM lParam)
    std::shared_ptr<WriteFinishedDelegate> spoDispatch(reinterpret_cast<WriteFinishedDelegate*>(wParam));
    std::shared_ptr<CString> spoBuffer(reinterpret_cast<CString*>(lParam));
 
-
+   DWORD dwBytesWritten = 0;
+   CStatusCodes::ECodes eErrCode = CStatusCodes::SC_COM_WRITE_FAILED;
+   if (WriteFile(m_hComm, spoBuffer->GetBuffer(), spoBuffer->GetLength(), &dwBytesWritten, NULL))
+   {
+      eErrCode =
+         (spoBuffer->GetLength() == dwBytesWritten) ? CStatusCodes::SC_OK : CStatusCodes::SC_COM_WRITE_MISMATCH;
+   }
+   (*spoDispatch)(eErrCode);
 }
