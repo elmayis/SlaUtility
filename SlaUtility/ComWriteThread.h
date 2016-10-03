@@ -29,6 +29,7 @@ public:
    Posts message on thread to write to the buffer to the COM port
    */
    void FireWriteBuffer();
+
 protected:
    virtual BOOL InitInstance();
    virtual int ExitInstance();

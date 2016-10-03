@@ -1,18 +1,16 @@
 
 #include "stdafx.h"
-#include "StatusCodes.h"
 #include "ComReadThread.h"
 #include "ComWriteThread.h"
-#include "ComThread.h"
+#include "Com.h"
 
-IMPLEMENT_DYNCREATE(CComThread, CWinThread)
-
-CComThread::CComThread()
-:  m_hComm(NULL)
+CCom::CCom(const OutputMsgDelegate& oOutputMsgDelegate)
+:  OnOutputMsg(oOutputMsgDelegate),
+   m_hComm(NULL)
 {
 }
 
-CComThread::~CComThread()
+CCom::~CCom()
 {
    if (NULL != m_hComm)
    {
@@ -21,54 +19,14 @@ CComThread::~CComThread()
    }
 }
 
-void CComThread::SetOutputMsgDelegate(const OutputMsgDelegate& oOutputMsgDelegate)
+CStatusCodes::ECodes CCom::Connect(const CComSettings& oComSettings)
 {
-   OnOutputMsg = oOutputMsgDelegate;
-}
+   m_spoComSettings.reset(new CComSettings(oComSettings));
 
-void CComThread::FireConnect(const ConnectFinishedDelegate& oConnectFinishedDelegate, const CComSettings& oComSettings)
-{
-   // Allocate a copy of the delegate on the heap. This needs to be done so that the raw pointer can be
-   // passed to this thread across thread bounderies. The OS layer is only capable of dealing with simple POD.
-   // The pointer will be free'd by the OnConnect message handler.
-   //
-   ConnectFinishedDelegate* poDispatch = new ConnectFinishedDelegate(oConnectFinishedDelegate);
-   CComSettings* poSettings = new CComSettings(oComSettings);
-   PostThreadMessage(WM_CONNECT, reinterpret_cast<WPARAM>(poDispatch), reinterpret_cast<LPARAM>(poSettings));
-}
-
-void CComThread::FireWriteBuffer()
-{
-   PostThreadMessage(WM_WRITE_BUFFER, 0, 0);
-}
-
-BEGIN_MESSAGE_MAP(CComThread, CWinThread)
-   ON_THREAD_MESSAGE(WM_CONNECT, OnConnect)
-   ON_THREAD_MESSAGE(WM_WRITE_BUFFER, OnWriteBuffer)
-END_MESSAGE_MAP()
-
-BOOL CComThread::InitInstance()
-{
-   return TRUE;
-}
-
-int CComThread::ExitInstance()
-{
-   return 0;
-}
-
-void CComThread::OnConnect(WPARAM wParam, LPARAM lParam)
-{
-   // Cast in the ConnectFinishedDelegate handle. It is required that this thing be on the heap. Wrap it in a shared_ptr
-   // so that it is destroyed upon function exit.
-   //
-   std::shared_ptr<ConnectFinishedDelegate> spoDispatch(reinterpret_cast<ConnectFinishedDelegate*>(wParam));
-   m_soComSettings.reset(reinterpret_cast<CComSettings*>(lParam));
-
-   int iErrCode = CStatusCodes::SC_COM_OPEN_FAILED;
+   CStatusCodes::ECodes eErrCode = CStatusCodes::SC_COM_OPEN_FAILED;
    if (OpenComm())
    {
-      iErrCode = CStatusCodes::SC_COM_SETTINGS_FAILED;
+      eErrCode = CStatusCodes::SC_COM_SETTINGS_FAILED;
       if (UpdateCommSettings())
       {
          m_spoComReadThread.reset(dynamic_cast<CComReadThread*>(AfxBeginThread(RUNTIME_CLASS(CComReadThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED)));
@@ -85,35 +43,35 @@ void CComThread::OnConnect(WPARAM wParam, LPARAM lParam)
                //
                m_spoComReadThread->ResumeThread();
                m_spoComWriteThread->ResumeThread();
-               iErrCode = CStatusCodes::SC_OK;
+               eErrCode = CStatusCodes::SC_OK;
             }
             else
             {
-               iErrCode = CStatusCodes::SC_COM_WRITE_THREAD_FAILED;
+               eErrCode = CStatusCodes::SC_COM_WRITE_THREAD_FAILED;
                OnOutputMsg("Failed to create the COM write thread.", true);
             }
          }
          else
          {
-            iErrCode = CStatusCodes::SC_COM_READ_THREAD_FAILED;
+            eErrCode = CStatusCodes::SC_COM_READ_THREAD_FAILED;
             OnOutputMsg("Failed to create the COM read thread.", true);
          }
       }
    }
-   (*spoDispatch)(iErrCode);
+   return eErrCode;
 }
 
-void CComThread::OnWriteBuffer(WPARAM wParam, LPARAM lParam)
+void CCom::FireWriteBuffer()
 {
 
 }
 
-bool CComThread::OpenComm(void)
+bool CCom::OpenComm(void)
 {
    CString sCommPort;
    // Need to add the text "COM" to the port number
    //
-   sCommPort.Format("\\\\.\\COM%d", m_soComSettings->m_iPortNumber);
+   sCommPort.Format("\\\\.\\COM%d", m_spoComSettings->m_iPortNumber);
    m_hComm =
       CreateFile(sCommPort,
          GENERIC_READ | GENERIC_WRITE,
@@ -130,7 +88,7 @@ bool CComThread::OpenComm(void)
    return false;
 }
 
-bool CComThread::UpdateCommSettings(void)
+bool CCom::UpdateCommSettings(void)
 {
    DCB oDcb;
    //  Initialize the DCB structure.
@@ -142,10 +100,10 @@ bool CComThread::UpdateCommSettings(void)
    BOOL bSuccess = GetCommState(m_hComm, &oDcb);
    if (bSuccess)
    {
-      oDcb.BaudRate = m_soComSettings->m_iBaudRate;
-      oDcb.ByteSize = m_soComSettings->m_iDataBits;
-      oDcb.StopBits = m_soComSettings->m_iStopBits;
-      oDcb.Parity = m_soComSettings->m_iParity;
+      oDcb.BaudRate = m_spoComSettings->m_iBaudRate;
+      oDcb.ByteSize = m_spoComSettings->m_iDataBits;
+      oDcb.StopBits = m_spoComSettings->m_iStopBits;
+      oDcb.Parity = m_spoComSettings->m_iParity;
       // The default is no flow control
       //
       oDcb.fOutxCtsFlow = false;
@@ -154,7 +112,7 @@ bool CComThread::UpdateCommSettings(void)
       oDcb.fDtrControl = false;
       oDcb.fOutX = false;
       oDcb.fInX = false;
-      switch (m_soComSettings->m_iHandshaking)
+      switch (m_spoComSettings->m_iHandshaking)
       {
       case 1:
       {

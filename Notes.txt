@@ -1,0 +1,5 @@
+
+10-3-16
+Added read/write threads for COM.
+CComThread is no longer a thread. Renamed to CCom.
+Updated all classes to compile.

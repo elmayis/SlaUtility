@@ -7,7 +7,7 @@
 #include <memory>
 #include "ComSettings.h"
 
-class CComThread;
+class CCom;
 
 // CSlaUtilityDlg dialog
 class CSlaUtilityDlg : public CDialogEx
@@ -49,12 +49,6 @@ protected:
    afx_msg void OnCbnSelchangeComboHandshaking();
 
    /**
-      Event handler that is called when the COM is connected whether pass or fail
-      @param[in] lParam will contain the result code for the connection
-   */
-   afx_msg LRESULT OnComConnected(WPARAM wParam, LPARAM lParam);
-
-   /**
       Event handler that is called to output a message to the rich edit control
       @param[in] wParam will contain the true or false value
       @param[in] lParam will contain the raw pointer to a CString containing the message
@@ -64,7 +58,6 @@ protected:
    DECLARE_MESSAGE_MAP()
 
 private:
-
    /**
       Validates all of the controls that are required for COM.
       @param[out] updated with the valid COM entries
@@ -72,6 +65,11 @@ private:
       @return true if valid
    */
    bool IsCommEntriesValid(CComSettings& oComSettings) const;
+
+   /**
+   Opens the COM then updates the UI controls
+   */
+   void OpenCom(const CComSettings& oComSettings);
 
    /**
       @return COM port number selected in the control. A -1 indicates it is not selected.
@@ -168,21 +166,15 @@ private:
    void OutputMessage(const CString& sMsg, bool bPresentModal = false);
 
    /**
-      Called from the COM thread when the connection operation is finished
-   */
-   void FireComConnected(int iErrCode);
-
-   /**
       Called from the COM thread to output a message to the edit control
       @param[in] sMsg message to output to the control
       @param[in] bPresentModal true to present a modal dialog with the message
    */
    void FireOutputMsg(const CString& sMsg, bool bPresentModal);
 
-   static const int WM_ON_COM_CONNECTED   = WM_USER + 1;
-   static const int WM_ON_OUTPUT_MSG      = WM_ON_COM_CONNECTED + 1;
+   static const int WM_ON_OUTPUT_MSG      = WM_USER + 1;
 
-   std::shared_ptr<CComThread> m_spoComThread;
+   std::shared_ptr<CCom> m_spoCom;
 
    CComboBox m_oCboPortNumber;
    CComboBox m_oCboBaudRate;

@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #include <functional>
 #include <string>
-#include "ComThread.h"
+#include "Com.h"
 #include "SlaUtility.h"
 #include "SlaUtilityDlg.h"
 #include "StatusCodes.h"
@@ -83,7 +83,6 @@ BEGIN_MESSAGE_MAP(CSlaUtilityDlg, CDialogEx)
    ON_CBN_SELCHANGE(IDC_COMBO_PARITY, &CSlaUtilityDlg::OnCbnSelchangeComboParity)
    ON_CBN_SELCHANGE(IDC_COMBO_HANDSHAKING, &CSlaUtilityDlg::OnCbnSelchangeComboHandshaking)
 
-   ON_MESSAGE(WM_ON_COM_CONNECTED, OnComConnected)
    ON_MESSAGE(WM_ON_OUTPUT_MSG, OnOutputMsg)
 
 END_MESSAGE_MAP()
@@ -224,36 +223,28 @@ void CSlaUtilityDlg::OnBnClickedButtonConnect()
    CComSettings oComSettings;
    if (IsCommEntriesValid(oComSettings))
    {
-      //mayis - may need to keep from starting the thread until adding delegate to output messages
-      //
-      m_spoComThread.reset(dynamic_cast<CComThread*>(AfxBeginThread(RUNTIME_CLASS(CComThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED)));
-      if (NULL != m_spoComThread)
+      m_spoCom.reset(new CCom(std::bind(&CSlaUtilityDlg::FireOutputMsg, this, std::placeholders::_1, std::placeholders::_2)));
+      if (NULL != m_spoCom)
       {
-         m_spoComThread->SetOutputMsgDelegate(std::bind(&CSlaUtilityDlg::FireOutputMsg, this, std::placeholders::_1, std::placeholders::_2));
-         m_spoComThread->ResumeThread();
-         m_spoComThread->FireConnect(std::bind(&CSlaUtilityDlg::FireComConnected, this, std::placeholders::_1), oComSettings);
+         OpenCom(oComSettings);
       }
       else
       {
-         AfxMessageBox("Failed to create the COM thread.");
+         OutputMessage("Failed to create the COM object.");
       }
+
    }
    else
    {
-      AfxMessageBox("All COM setting entries are not valid.");
+      OutputMessage("All COM setting entries are not valid.");
    }
 }
 
 void CSlaUtilityDlg::OnBnClickedButtonDisconnect()
 {
-   if (m_spoComThread)
+   if (m_spoCom)
    {
-      ::PostThreadMessage(m_spoComThread->m_nThreadID, WM_QUIT, 0, 0);
-      if (WAIT_TIMEOUT == ::WaitForSingleObject(m_spoComThread->m_hThread, 5000))
-      {
-         OutputMessage("COM thread termination timed out.");
-      }
-      m_spoComThread.reset();
+      m_spoCom.reset();
    }
 }
 
@@ -345,9 +336,10 @@ void CSlaUtilityDlg::OnCbnSelchangeComboHandshaking()
    RegSetValueEx(hKey, "Handshaking", 0, REG_DWORD, reinterpret_cast<BYTE*>(&iValue), sizeof(iValue));
 }
 
-LRESULT CSlaUtilityDlg::OnComConnected(WPARAM wParam, LPARAM lParam)
+void CSlaUtilityDlg::OpenCom(const CComSettings& oComSettings)
 {
-   if (CStatusCodes::SC_OK == lParam)
+   const CStatusCodes::ECodes eErrCode = m_spoCom->Connect(oComSettings);
+   if (CStatusCodes::SC_OK == eErrCode)
    {
       OutputMessage("Established connection to the COM port.");
       // Enable/disable appropriate controls
@@ -369,10 +361,9 @@ LRESULT CSlaUtilityDlg::OnComConnected(WPARAM wParam, LPARAM lParam)
    else
    {
       CString sMsg;
-      sMsg.Format("COM connection failed with status code %d.", lParam);
+      sMsg.Format("COM connection failed with status code %d.", eErrCode);
       OutputMessage(sMsg);
    }
-   return 0;
 }
 
 LRESULT CSlaUtilityDlg::OnOutputMsg(WPARAM wParam, LPARAM lParam)
@@ -800,11 +791,6 @@ void CSlaUtilityDlg::OutputMessage(const CString& sMsg, bool bPresentModal)
    {
       AfxMessageBox(sMsg);
    }
-}
-
-void CSlaUtilityDlg::FireComConnected(int iErrCode)
-{
-   PostMessage(WM_ON_COM_CONNECTED, 0, iErrCode);
 }
 
 void CSlaUtilityDlg::FireOutputMsg(const CString& sMsg, bool bPresentModal)
