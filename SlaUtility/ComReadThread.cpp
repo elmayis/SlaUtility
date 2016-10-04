@@ -6,7 +6,8 @@
 IMPLEMENT_DYNCREATE(CComReadThread, CWinThread)
 
 CComReadThread::CComReadThread()
-:  m_hComm(NULL)
+:  m_hComm(NULL),
+   m_bExitLoop(false)
 {
 }
 
@@ -24,25 +25,14 @@ void CComReadThread::SetOutputMsgDelegate(const OutputMsgDelegate& oOutputMsgDel
    OnOutputMsg = oOutputMsgDelegate;
 }
 
-//void CComReadThread::FireConnect(const ConnectFinishedDelegate& oConnectFinishedDelegate, const CComSettings& oComSettings)
-//{
-//   // Allocate a copy of the delegate on the heap. This needs to be done so that the raw pointer can be
-//   // passed to this thread across thread bounderies. The OS layer is only capable of dealing with simple POD.
-//   // The pointer will be free'd by the OnConnect message handler.
-//   //
-//   ConnectFinishedDelegate* poDispatch = new ConnectFinishedDelegate(oConnectFinishedDelegate);
-//   CComSettings* poSettings = new CComSettings(oComSettings);
-//   PostThreadMessage(WM_CONNECT, reinterpret_cast<WPARAM>(poDispatch), reinterpret_cast<LPARAM>(poSettings));
-//}
-//
-//void CComReadThread::FireWriteBuffer()
-//{
-//   PostThreadMessage(WM_WRITE_BUFFER, 0, 0);
-//}
+void CComReadThread::Abort(void)
+{
+   m_bExitLoop = true;
+   CancelSynchronousIo(this->m_hThread);
+}
 
 BEGIN_MESSAGE_MAP(CComReadThread, CWinThread)
-   //ON_THREAD_MESSAGE(WM_CONNECT, OnConnect)
-   //ON_THREAD_MESSAGE(WM_WRITE_BUFFER, OnWriteBuffer)
+   ON_THREAD_MESSAGE(WM_READ_COM, OnReadCom)
 END_MESSAGE_MAP()
 
 BOOL CComReadThread::InitInstance()
@@ -55,22 +45,22 @@ int CComReadThread::ExitInstance()
    return 0;
 }
 
-//void CComReadThread::OnConnect(WPARAM wParam, LPARAM lParam)
-//{
-//   // Cast in the ConnectFinishedDelegate handle. It is required that this thing be on the heap. Wrap it in a shared_ptr
-//   // so that it is destroyed upon function exit.
-//   //
-//   std::shared_ptr<ConnectFinishedDelegate> spoDispatch(reinterpret_cast<ConnectFinishedDelegate*>(wParam));
-//   m_soComSettings.reset(reinterpret_cast<CComSettings*>(lParam));
-//
-//   int iErrCode = CStatusCodes::SC_COM_OPEN_FAILED;
-//   if (OpenComm())
-//   {
-//      iErrCode = CStatusCodes::SC_COM_SETTINGS_FAILED;
-//      if (UpdateCommSettings())
-//      {
-//         iErrCode = CStatusCodes::SC_OK;
-//      }
-//   }
-//   (*spoDispatch)(iErrCode);
-//}
+void CComReadThread::OnReadCom(WPARAM wParam, LPARAM lParam)
+{
+   while (!m_bExitLoop)
+   {
+      char pcBuf[512];
+      DWORD dwBytesRead = 0;
+      const BOOL bResult = ReadFile(m_hComm, pcBuf, 512, &dwBytesRead, NULL);
+      if (bResult)
+      {
+         CString sData(pcBuf, dwBytesRead);
+         OnOutputMsg(sData, false);
+      }
+   }
+}
+
+void CComReadThread::FireBeginRead(void)
+{
+   PostThreadMessage(WM_READ_COM, 0, 0);
+}

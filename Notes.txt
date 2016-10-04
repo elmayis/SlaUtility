@@ -6,4 +6,10 @@ Updated all classes to compile.
 
 Implementing writing text to the COM...
 - Connected CSlaUtilityDlg to CComWriteThread
-- 
+- Implemented event handler to write to the COM port
+
+10-4-16
+Working on read thread...
+- Added event handler
+- implemented reading from the COM port
+- added abitlity to abort the synchronous read operation
