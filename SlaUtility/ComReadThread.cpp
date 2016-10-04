@@ -37,6 +37,9 @@ END_MESSAGE_MAP()
 
 BOOL CComReadThread::InitInstance()
 {
+   // This will start the reading loop
+   //
+   FireBeginRead();
    return TRUE;
 }
 
