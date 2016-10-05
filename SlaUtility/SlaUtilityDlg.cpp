@@ -194,9 +194,17 @@ void CSlaUtilityDlg::OnBnClickedButtonSerialPorts()
             OPEN_EXISTING,    //  must use OPEN_EXISTING
             0,                //  not overlapped I/O
             NULL);            //  hTemplate must be NULL for comm devices
-      if (NULL != hCom)
+      if (INVALID_HANDLE_VALUE != hCom)
       {
+         CloseHandle(hCom);
          m_oCboPortNumber.AddString(sNumber);
+      }
+      else
+      {
+         CString sErrMsg;
+         const DWORD dwErrCode = GetLastError();
+         sErrMsg.Format("CreateFile failed with error code %d for %s.", dwErrCode, sNumber);
+         OutputMessage(sErrMsg);
       }
    }
    if (0 != m_oCboPortNumber.GetCount())
@@ -213,9 +221,16 @@ void CSlaUtilityDlg::OnBnClickedButtonSerialPorts()
       {
          m_oCboPortNumber.SetCurSel(0);
       }
+      GetDlgItem(IDC_BUTTON_SERIAL_PORTS)->EnableWindow(true);
+      m_oCboPortNumber.EnableWindow(true);
+      GetDlgItem(IDC_BUTTON_CONNECT)->EnableWindow(true);
+      m_oCboPortNumber.EnableWindow(true);
+      m_oCboBaudRate.EnableWindow(true);
+      m_oCboDataBits.EnableWindow(true);
+      m_oCboStopBits.EnableWindow(true);
+      m_oCboParity.EnableWindow(true);
+      m_oCboHandshaking.EnableWindow(true);
    }
-   EnableInitialControls();
-   GetDlgItem(IDC_BUTTON_CONNECT)->EnableWindow(true);
 }
 
 void CSlaUtilityDlg::OnBnClickedButtonConnect()
