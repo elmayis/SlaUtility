@@ -259,6 +259,7 @@ void CSlaUtilityDlg::OnBnClickedButtonDisconnect()
 {
    if (m_spoCom)
    {
+      m_spoCom->Disconnect();
       m_spoCom.reset();
    }
 }

@@ -32,6 +32,11 @@ public:
    */
    void FireWrite(const WriteFinishedDelegate& oWriteFinishedDelegate, const CString& sBuffer);
 
+   /*
+   Aborts the write operation
+   */
+   void Abort(void);
+
 protected:
    virtual BOOL InitInstance();
    virtual int ExitInstance();
@@ -54,4 +59,9 @@ private:
    Handle to the COM port
    */
    HANDLE m_hComm;
+
+   /*
+   Flag used by OnWriteBuffer indicating that the operation was aborted
+   */
+   bool m_bAbort;
 };

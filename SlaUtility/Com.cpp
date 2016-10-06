@@ -12,11 +12,7 @@ CCom::CCom(const OutputMsgDelegate& oOutputMsgDelegate)
 
 CCom::~CCom()
 {
-   if (NULL != m_hComm)
-   {
-      CloseHandle(m_hComm);
-      m_hComm = NULL;
-   }
+   Disconnect();
 }
 
 CStatusCodes::ECodes CCom::Connect(const CComSettings& oComSettings)
@@ -59,6 +55,41 @@ CStatusCodes::ECodes CCom::Connect(const CComSettings& oComSettings)
       }
    }
    return eErrCode;
+}
+
+void CCom::Disconnect(void)
+{
+   if (m_spoComReadThread)
+   {
+      m_spoComReadThread->Abort();
+      ::PostThreadMessage(m_spoComReadThread->m_nThreadID, WM_QUIT, 0, 0);
+      // In debug mode, we are much stricter about waiting for the thread to shutdown.
+      // Issue an error if it times out.
+      //
+      if (WAIT_TIMEOUT == ::MsgWaitForMultipleObjects(1, &m_spoComReadThread->m_hThread, FALSE, 5000, 0))
+      {
+         _RPTF1(_CRT_ERROR, "The '%s' thread did not shutdown in the time alloted.", "read");
+      }
+      m_spoComReadThread.reset();
+   }
+   if (m_spoComWriteThread)
+   {
+      m_spoComWriteThread->Abort();
+      ::PostThreadMessage(m_spoComWriteThread->m_nThreadID, WM_QUIT, 0, 0);
+      // In debug mode, we are much stricter about waiting for the thread to shutdown.
+      // Issue an error if it times out.
+      //
+      if (WAIT_TIMEOUT == ::MsgWaitForMultipleObjects(1, &m_spoComWriteThread->m_hThread, FALSE, 5000, 0))
+      {
+         _RPTF1(_CRT_ERROR, "The '%s' thread did not shutdown in the time alloted.", "write");
+      }
+      m_spoComWriteThread.reset();
+   }
+   if (NULL != m_hComm)
+   {
+      CloseHandle(m_hComm);
+      m_hComm = NULL;
+   }
 }
 
 void CCom::FireWrite(const WriteFinishedDelegate& oWriteFinishedDelegate, const CString& sBuffer)

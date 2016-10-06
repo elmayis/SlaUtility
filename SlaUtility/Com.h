@@ -27,6 +27,11 @@ public:
    */
    CStatusCodes::ECodes Connect(const CComSettings& oComSettings);
 
+   /*
+      Shuts down the read and write threads then closes the handle
+   */
+   void Disconnect(void);
+
    /**
       Asynchronously writes the text to the opened COM port using the writing thread
       @param[in] oWriteFinishedDelegate delegate called when the operation is finished

@@ -7,7 +7,8 @@
 IMPLEMENT_DYNCREATE(CComWriteThread, CWinThread)
 
 CComWriteThread::CComWriteThread()
-:  m_hComm(NULL)
+:  m_hComm(NULL),
+   m_bAbort(false)
 {
 }
 
@@ -36,6 +37,12 @@ void CComWriteThread::FireWrite(const WriteFinishedDelegate& oWriteFinishedDeleg
    PostThreadMessage(WM_WRITE_BUFFER, reinterpret_cast<WPARAM>(poDispatch), reinterpret_cast<LPARAM>(poBuffer));
 }
 
+void CComWriteThread::Abort(void)
+{
+   m_bAbort = true;
+   CancelSynchronousIo(this->m_hThread);
+}
+
 BEGIN_MESSAGE_MAP(CComWriteThread, CWinThread)
    ON_THREAD_MESSAGE(WM_WRITE_BUFFER, OnWriteBuffer)
 END_MESSAGE_MAP()
@@ -52,6 +59,8 @@ int CComWriteThread::ExitInstance()
 
 void CComWriteThread::OnWriteBuffer(WPARAM wParam, LPARAM lParam)
 {
+   if (m_bAbort) return;
+
    // Cast in the WriteFinishedDelegate handle. It is required that this thing be on the heap. Wrap it in a shared_ptr
    // so that it is destroyed upon function exit.
    //
@@ -65,5 +74,8 @@ void CComWriteThread::OnWriteBuffer(WPARAM wParam, LPARAM lParam)
       eErrCode =
          (spoBuffer->GetLength() == dwBytesWritten) ? CStatusCodes::SC_OK : CStatusCodes::SC_COM_WRITE_MISMATCH;
    }
-   (*spoDispatch)(eErrCode);
+   if (!m_bAbort)
+   {
+      (*spoDispatch)(eErrCode);
+   }
 }

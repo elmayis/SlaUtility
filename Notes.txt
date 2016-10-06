@@ -13,3 +13,16 @@ Working on read thread...
 - Added event handler
 - implemented reading from the COM port
 - added abitlity to abort the synchronous read operation
+
+10-5-16
+After a few bug fixes I was able to connect to the Due successfully.
+Attempted to disconnect and was met with an exception.
+
+10-6-16
+I found that I was not destroying the read and write thread objects.
+Added statement in CCom dtor to destroy the read and write thread objects.
+The exception is no longer present BUT CloseHandle does not return. We have a deadlock.
+The reason is that ReadFile is waiting on the COM.
+- Added CCom::Disconnect
+- This method will call Abort on the read and write threads
+- It will then post a WM_QUIT message to the thread and wait until it is done
