@@ -26,3 +26,9 @@ The reason is that ReadFile is waiting on the COM.
 - Added CCom::Disconnect
 - This method will call Abort on the read and write threads
 - It will then post a WM_QUIT message to the thread and wait until it is done
+This fixed the disconnect issue. The COM is disconnected successfully.
+
+Need to add logic to enable the appropriate controls after a disconnect event.
+Tested OK.
+
+Added a Clear button to clear the contents of the output window.

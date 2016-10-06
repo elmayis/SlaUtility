@@ -40,6 +40,7 @@ protected:
    afx_msg void OnBnClickedButtonDisconnect();
    afx_msg void OnBnClickedLoadFile();
    afx_msg void OnBnClickedDownload();
+   afx_msg void OnBnClickedClear();
 
    afx_msg void OnCbnSelchangeComboPortNumber();
    afx_msg void OnCbnSelchangeComboBaudRate();
@@ -152,6 +153,16 @@ private:
       Enables the controls after the dialog is presented.
    */
    void EnableInitialControls(void);
+
+   /**
+   Enables the controls after the serial ports are enumerated
+   */
+   void EnableEnumComControls(void);
+
+   /**
+   Enables the controls after connecting to the serial port
+   */
+   void EnableConnectedControls(void);
 
    /**
       Enables/disables all of the controls

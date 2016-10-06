@@ -75,6 +75,7 @@ BEGIN_MESSAGE_MAP(CSlaUtilityDlg, CDialogEx)
    ON_BN_CLICKED(IDC_BUTTON_DISCONNECT, &CSlaUtilityDlg::OnBnClickedButtonDisconnect)
    ON_BN_CLICKED(IDC_BUTTON_LOAD_FILE, &CSlaUtilityDlg::OnBnClickedLoadFile)
    ON_BN_CLICKED(IDC_BUTTON_DOWNLOAD, &CSlaUtilityDlg::OnBnClickedDownload)
+   ON_BN_CLICKED(IDC_BUTTON_CLEAR, &CSlaUtilityDlg::OnBnClickedClear)
 
    ON_CBN_SELCHANGE(IDC_COMBO_PORT_NUMBER, &CSlaUtilityDlg::OnCbnSelchangeComboPortNumber)
    ON_CBN_SELCHANGE(IDC_COMBO_BAUD_RATE, &CSlaUtilityDlg::OnCbnSelchangeComboBaudRate)
@@ -221,15 +222,7 @@ void CSlaUtilityDlg::OnBnClickedButtonSerialPorts()
       {
          m_oCboPortNumber.SetCurSel(0);
       }
-      GetDlgItem(IDC_BUTTON_SERIAL_PORTS)->EnableWindow(true);
-      m_oCboPortNumber.EnableWindow(true);
-      GetDlgItem(IDC_BUTTON_CONNECT)->EnableWindow(true);
-      m_oCboPortNumber.EnableWindow(true);
-      m_oCboBaudRate.EnableWindow(true);
-      m_oCboDataBits.EnableWindow(true);
-      m_oCboStopBits.EnableWindow(true);
-      m_oCboParity.EnableWindow(true);
-      m_oCboHandshaking.EnableWindow(true);
+      EnableEnumComControls();
    }
 }
 
@@ -257,11 +250,14 @@ void CSlaUtilityDlg::OnBnClickedButtonConnect()
 
 void CSlaUtilityDlg::OnBnClickedButtonDisconnect()
 {
+   EnableAllControls(false);
    if (m_spoCom)
    {
       m_spoCom->Disconnect();
       m_spoCom.reset();
+      OutputMessage("Disconnected from the COM port.");
    }
+   EnableEnumComControls();
 }
 
 void CSlaUtilityDlg::OnBnClickedLoadFile()
@@ -285,6 +281,15 @@ void CSlaUtilityDlg::OnBnClickedLoadFile()
 void CSlaUtilityDlg::OnBnClickedDownload()
 {
 
+}
+
+void CSlaUtilityDlg::OnBnClickedClear()
+{
+   // Must select the entire contents so that Clear will erase the selection
+   //
+   m_oOutputWnd.SetSel(0, -1);
+   m_oOutputWnd.Clear();
+   m_oOutputWnd.SetSel(-1, -1);
 }
 
 void CSlaUtilityDlg::OnCbnSelchangeComboPortNumber()
@@ -358,21 +363,7 @@ void CSlaUtilityDlg::OpenCom(const CComSettings& oComSettings)
    if (CStatusCodes::SC_OK == eErrCode)
    {
       OutputMessage("Established connection to the COM port.");
-      // Enable/disable appropriate controls
-      //
-      GetDlgItem(IDC_BUTTON_SERIAL_PORTS)->EnableWindow(false);
-      GetDlgItem(IDC_BUTTON_CONNECT)->EnableWindow(false);
-      GetDlgItem(IDC_BUTTON_DISCONNECT)->EnableWindow(true);
-      GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(true);
-      GetDlgItem(IDC_BUTTON_LOAD_FILE)->EnableWindow(true);
-      GetDlgItem(IDC_BUTTON_DOWNLOAD)->EnableWindow(true);
-      GetDlgItem(IDC_EDIT_MANUAL_COMMAND)->EnableWindow(true);
-      m_oCboPortNumber.EnableWindow(false);
-      m_oCboBaudRate.EnableWindow(false);
-      m_oCboDataBits.EnableWindow(false);
-      m_oCboStopBits.EnableWindow(false);
-      m_oCboParity.EnableWindow(false);
-      m_oCboHandshaking.EnableWindow(false);
+      EnableConnectedControls();
    }
    else
    {
@@ -781,6 +772,36 @@ void CSlaUtilityDlg::EnableInitialControls(void)
    m_oCboPortNumber.EnableWindow(true);
 }
 
+void CSlaUtilityDlg::EnableEnumComControls(void)
+{
+   GetDlgItem(IDC_BUTTON_SERIAL_PORTS)->EnableWindow(true);
+   m_oCboPortNumber.EnableWindow(true);
+   GetDlgItem(IDC_BUTTON_CONNECT)->EnableWindow(true);
+   m_oCboPortNumber.EnableWindow(true);
+   m_oCboBaudRate.EnableWindow(true);
+   m_oCboDataBits.EnableWindow(true);
+   m_oCboStopBits.EnableWindow(true);
+   m_oCboParity.EnableWindow(true);
+   m_oCboHandshaking.EnableWindow(true);
+}
+
+void CSlaUtilityDlg::EnableConnectedControls(void)
+{
+   GetDlgItem(IDC_BUTTON_SERIAL_PORTS)->EnableWindow(false);
+   GetDlgItem(IDC_BUTTON_CONNECT)->EnableWindow(false);
+   GetDlgItem(IDC_BUTTON_DISCONNECT)->EnableWindow(true);
+   GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(true);
+   GetDlgItem(IDC_BUTTON_LOAD_FILE)->EnableWindow(true);
+   GetDlgItem(IDC_BUTTON_DOWNLOAD)->EnableWindow(true);
+   GetDlgItem(IDC_EDIT_MANUAL_COMMAND)->EnableWindow(true);
+   m_oCboPortNumber.EnableWindow(false);
+   m_oCboBaudRate.EnableWindow(false);
+   m_oCboDataBits.EnableWindow(false);
+   m_oCboStopBits.EnableWindow(false);
+   m_oCboParity.EnableWindow(false);
+   m_oCboHandshaking.EnableWindow(false);
+}
+
 void CSlaUtilityDlg::EnableAllControls(bool bEnable)
 {
    GetDlgItem(IDC_BUTTON_SERIAL_PORTS)->EnableWindow(bEnable);
@@ -803,6 +824,17 @@ void CSlaUtilityDlg::OutputMessage(const CString& sMsg, bool bPresentModal)
    const CString sNewMessage = sMsg + "\n";
    m_oOutputWnd.SetSel(-1, -1);
    m_oOutputWnd.ReplaceSel(sNewMessage);
+
+   // The following logic will scroll to the end of the last line in the output window.
+   // Get the line number of the last character
+   //
+   const int iLastChar = m_oOutputWnd.LineIndex(-1);
+   const int iLineWithCaret = m_oOutputWnd.LineFromChar(iLastChar);
+   // Scroll the edit control so that the last line will be visible.
+   //
+   int iCount = m_oOutputWnd.GetLineCount();
+   m_oOutputWnd.LineScroll(iCount - iLineWithCaret, 0);
+
    if (bPresentModal)
    {
       AfxMessageBox(sMsg);
