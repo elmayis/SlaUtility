@@ -148,35 +148,40 @@ bool CCom::UpdateCommSettings(void)
       oDcb.ByteSize = m_spoComSettings->m_iDataBits;
       oDcb.StopBits = m_spoComSettings->m_iStopBits;
       oDcb.Parity = m_spoComSettings->m_iParity;
-      // The default is no flow control
+
+      // The following is the default flow control
       //
       oDcb.fOutxCtsFlow = false;
       oDcb.fOutxDsrFlow = false;
       oDcb.fRtsControl = false;
-      oDcb.fDtrControl = false;
+      oDcb.fDtrControl = true;
+      oDcb.fRtsControl = true;
+      oDcb.fTXContinueOnXoff = true;
       oDcb.fOutX = false;
       oDcb.fInX = false;
-      switch (m_spoComSettings->m_iHandshaking)
-      {
-      case 1:
-      {
-         oDcb.fOutX = true;
-         oDcb.fInX = true;
-         break;
-      }
-      case 2:
-      {
-         oDcb.fRtsControl = true;
-         break;
-      }
-      case 3:
-      {
-         oDcb.fRtsControl = true;
-         oDcb.fOutX = true;
-         oDcb.fInX = true;
-         break;
-      }
-      }
+      // @todo need to figure this out sometime
+      //
+      //switch (m_spoComSettings->m_iHandshaking)
+      //{
+      //case 1:
+      //{
+      //   oDcb.fOutX = true;
+      //   oDcb.fInX = true;
+      //   break;
+      //}
+      //case 2:
+      //{
+      //   oDcb.fRtsControl = true;
+      //   break;
+      //}
+      //case 3:
+      //{
+      //   oDcb.fRtsControl = true;
+      //   oDcb.fOutX = true;
+      //   oDcb.fInX = true;
+      //   break;
+      //}
+      //}
       if (SetCommState(m_hComm, &oDcb)) return true;
 
       CString sMsg;

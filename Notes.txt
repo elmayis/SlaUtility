@@ -35,3 +35,13 @@ Added a Clear button to clear the contents of the output window.
 - The logic did not work
 - Found that I needed to remove the ReadOnly flag in the control
 Tested OK
+
+Downloaded SerialCallResponse to the Due.
+I should get a capital 'A' character when connected.
+I am getting garbage.
+I discovered that the baud rate is set to 9600. I set the baud rate but am still
+getting garbage.
+
+The root cause of the problem is that setting the protocol is incorrect. If I comment out that code and
+use the default, then I receive the correct data from the COM port.
+I basically set the values that are default and now I can receive data.
