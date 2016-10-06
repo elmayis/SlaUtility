@@ -793,6 +793,7 @@ void CSlaUtilityDlg::EnableConnectedControls(void)
    GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(true);
    GetDlgItem(IDC_BUTTON_LOAD_FILE)->EnableWindow(true);
    GetDlgItem(IDC_BUTTON_DOWNLOAD)->EnableWindow(true);
+   GetDlgItem(IDC_BUTTON_CLEAR)->EnableWindow(true);
    GetDlgItem(IDC_EDIT_MANUAL_COMMAND)->EnableWindow(true);
    m_oCboPortNumber.EnableWindow(false);
    m_oCboBaudRate.EnableWindow(false);
@@ -810,6 +811,7 @@ void CSlaUtilityDlg::EnableAllControls(bool bEnable)
    GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(bEnable);
    GetDlgItem(IDC_BUTTON_LOAD_FILE)->EnableWindow(bEnable);
    GetDlgItem(IDC_BUTTON_DOWNLOAD)->EnableWindow(bEnable);
+   GetDlgItem(IDC_BUTTON_CLEAR)->EnableWindow(bEnable);
    GetDlgItem(IDC_EDIT_MANUAL_COMMAND)->EnableWindow(bEnable);
    m_oCboPortNumber.EnableWindow(bEnable);
    m_oCboBaudRate.EnableWindow(bEnable);
