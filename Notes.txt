@@ -32,3 +32,6 @@ Need to add logic to enable the appropriate controls after a disconnect event.
 Tested OK.
 
 Added a Clear button to clear the contents of the output window.
+- The logic did not work
+- Found that I needed to remove the ReadOnly flag in the control
+Tested OK
