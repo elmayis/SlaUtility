@@ -28,9 +28,15 @@ CStatusCodes::ECodes CCom::Connect(const CComSettings& oComSettings)
          m_spoComReadThread.reset(dynamic_cast<CComReadThread*>(AfxBeginThread(RUNTIME_CLASS(CComReadThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED)));
          if (NULL != m_spoComReadThread)
          {
+            // Do not allow the thread to delete itself because we will do it manually via the smart pointer
+            //
+            m_spoComReadThread->m_bAutoDelete = FALSE;
             m_spoComWriteThread.reset(dynamic_cast<CComWriteThread*>(AfxBeginThread(RUNTIME_CLASS(CComWriteThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED)));
             if (NULL != m_spoComWriteThread)
             {
+               // Do not allow the thread to delete itself because we will do it manually via the smart pointer
+               //
+               m_spoComWriteThread->m_bAutoDelete = FALSE;
                m_spoComReadThread->SetComHandle(m_hComm);
                m_spoComReadThread->SetOutputMsgDelegate(OnOutputMsg);
                m_spoComWriteThread->SetComHandle(m_hComm);

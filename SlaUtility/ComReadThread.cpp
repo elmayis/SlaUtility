@@ -55,7 +55,7 @@ void CComReadThread::OnReadCom(WPARAM wParam, LPARAM lParam)
       char pcBuf[512];
       DWORD dwBytesRead = 0;
       const BOOL bResult = ReadFile(m_hComm, pcBuf, 512, &dwBytesRead, NULL);
-      if (bResult)
+      if (!m_bExitLoop && bResult)
       {
          CString sData(pcBuf, dwBytesRead);
          OnOutputMsg(sData, false);
