@@ -45,3 +45,8 @@ getting garbage.
 The root cause of the problem is that setting the protocol is incorrect. If I comment out that code and
 use the default, then I receive the correct data from the COM port.
 I basically set the values that are default and now I can receive data.
+
+10-7-16
+Working on writing to the COM port...
+- Implemented the Send button in the main dialog
+- Added the finished event handler but did not implement the event handler

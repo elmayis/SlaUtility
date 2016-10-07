@@ -40,6 +40,7 @@ protected:
    afx_msg void OnBnClickedButtonDisconnect();
    afx_msg void OnBnClickedLoadFile();
    afx_msg void OnBnClickedDownload();
+   afx_msg void OnBnClickedSend();
    afx_msg void OnBnClickedClear();
 
    afx_msg void OnCbnSelchangeComboPortNumber();
@@ -55,6 +56,12 @@ protected:
       @param[in] lParam will contain the raw pointer to a CString containing the message
    */
    afx_msg LRESULT OnOutputMsg(WPARAM wParam, LPARAM lParam);
+
+   /**
+   Event handler that is called when the write operation is finished for the manual command
+   @param[in] wParam will contain the error code
+   */
+   afx_msg LRESULT OnManualCmdWriteFinished(WPARAM wParam, LPARAM lParam);
 
    DECLARE_MESSAGE_MAP()
 
@@ -177,13 +184,20 @@ private:
    void OutputMessage(const CString& sMsg, bool bPresentModal = false);
 
    /**
-      Called from the COM thread to output a message to the edit control
+      Called from the COM object to output a message to the edit control
       @param[in] sMsg message to output to the control
       @param[in] bPresentModal true to present a modal dialog with the message
    */
    void FireOutputMsg(const CString& sMsg, bool bPresentModal);
 
-   static const int WM_ON_OUTPUT_MSG      = WM_USER + 1;
+   /**
+   Called from the COM object when the manual command has been written to the COM port
+   @param[in] iErrCode error code for the operation
+   */
+   void FireManualCmdWriteFinished(int iErrCode);
+
+   static const int WM_ON_OUTPUT_MSG                  = WM_USER + 1;
+   static const int WM_ON_MANUAL_CMD_WRITE_FINISHED   = WM_ON_OUTPUT_MSG + 1;
 
    std::shared_ptr<CCom> m_spoCom;
 
@@ -193,6 +207,11 @@ private:
    CComboBox m_oCboStopBits;
    CComboBox m_oCboParity;
    CComboBox m_oCboHandshaking;
+
+   /*
+   Control that contains the operator entered command to send to the COM port
+   */
+   CEdit m_oEditManualCmd;
 
    /**
       This is the output window

@@ -63,6 +63,8 @@ void CSlaUtilityDlg::DoDataExchange(CDataExchange* pDX)
    DDX_Control(pDX, IDC_COMBO_PARITY, m_oCboParity);
    DDX_Control(pDX, IDC_COMBO_HANDSHAKING, m_oCboHandshaking);
 
+   DDX_Control(pDX, IDC_EDIT_MANUAL_COMMAND, m_oEditManualCmd);
+
    DDX_Control(pDX, IDC_RICHEDIT_OUTPUT, m_oOutputWnd);
 }
 
@@ -75,6 +77,7 @@ BEGIN_MESSAGE_MAP(CSlaUtilityDlg, CDialogEx)
    ON_BN_CLICKED(IDC_BUTTON_DISCONNECT, &CSlaUtilityDlg::OnBnClickedButtonDisconnect)
    ON_BN_CLICKED(IDC_BUTTON_LOAD_FILE, &CSlaUtilityDlg::OnBnClickedLoadFile)
    ON_BN_CLICKED(IDC_BUTTON_DOWNLOAD, &CSlaUtilityDlg::OnBnClickedDownload)
+   ON_BN_CLICKED(IDC_BUTTON_SEND, &CSlaUtilityDlg::OnBnClickedSend)
    ON_BN_CLICKED(IDC_BUTTON_CLEAR, &CSlaUtilityDlg::OnBnClickedClear)
 
    ON_CBN_SELCHANGE(IDC_COMBO_PORT_NUMBER, &CSlaUtilityDlg::OnCbnSelchangeComboPortNumber)
@@ -280,7 +283,20 @@ void CSlaUtilityDlg::OnBnClickedLoadFile()
 
 void CSlaUtilityDlg::OnBnClickedDownload()
 {
+   if (m_spoCom)
+   {
 
+   }
+}
+
+void CSlaUtilityDlg::OnBnClickedSend()
+{
+   if (m_spoCom)
+   {
+      CString sCommand;
+      m_oEditManualCmd.GetWindowText(sCommand);
+      m_spoCom->FireWrite(std::bind(&CSlaUtilityDlg::FireManualCmdWriteFinished, this, std::placeholders::_1), sCommand);
+   }
 }
 
 void CSlaUtilityDlg::OnBnClickedClear()
@@ -377,6 +393,11 @@ LRESULT CSlaUtilityDlg::OnOutputMsg(WPARAM wParam, LPARAM lParam)
 {
    std::shared_ptr<CString> spoMsg(reinterpret_cast<CString*>(lParam));
    OutputMessage(*spoMsg, (0 != wParam));
+   return 0;
+}
+
+LRESULT CSlaUtilityDlg::OnManualCmdWriteFinished(WPARAM wParam, LPARAM lParam)
+{
    return 0;
 }
 
@@ -849,4 +870,9 @@ void CSlaUtilityDlg::FireOutputMsg(const CString& sMsg, bool bPresentModal)
    //
    CString* poMsg = new CString(sMsg);
    PostMessage(WM_ON_OUTPUT_MSG, bPresentModal, reinterpret_cast<LPARAM>(poMsg));
+}
+
+void CSlaUtilityDlg::FireManualCmdWriteFinished(int iErrCode)
+{
+   PostMessage(WM_ON_MANUAL_CMD_WRITE_FINISHED, iErrCode, 0);
 }
