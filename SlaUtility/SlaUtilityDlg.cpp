@@ -291,6 +291,7 @@ void CSlaUtilityDlg::OnBnClickedDownload()
 
 void CSlaUtilityDlg::OnBnClickedSend()
 {
+   GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(false);
    if (m_spoCom)
    {
       CString sCommand;
@@ -398,6 +399,13 @@ LRESULT CSlaUtilityDlg::OnOutputMsg(WPARAM wParam, LPARAM lParam)
 
 LRESULT CSlaUtilityDlg::OnManualCmdWriteFinished(WPARAM wParam, LPARAM lParam)
 {
+   if (CStatusCodes::SC_OK != wParam)
+   {
+      CString sMsg;
+      sMsg.Format("Failed to write command to COM port. Error code: %d.", wParam);
+      OutputMessage(sMsg);
+   }
+   GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(true);
    return 0;
 }
 

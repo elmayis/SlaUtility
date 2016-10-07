@@ -50,3 +50,8 @@ I basically set the values that are default and now I can receive data.
 Working on writing to the COM port...
 - Implemented the Send button in the main dialog
 - Added the finished event handler but did not implement the event handler
+
+Testing...
+- Deadlock because the read thread is locking the COM port
+Will need to revise the read thread so that it will time out and allow another thread to access the port.
+May need to refactor and create only 1 thread that will read write.
