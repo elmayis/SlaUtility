@@ -7,7 +7,7 @@
 #include <memory>
 #include "ComSettings.h"
 
-class CCom;
+class CComThread;
 
 // CSlaUtilityDlg dialog
 class CSlaUtilityDlg : public CDialogEx
@@ -199,7 +199,7 @@ private:
    static const int WM_ON_OUTPUT_MSG                  = WM_USER + 1;
    static const int WM_ON_MANUAL_CMD_WRITE_FINISHED   = WM_ON_OUTPUT_MSG + 1;
 
-   std::shared_ptr<CCom> m_spoCom;
+   std::shared_ptr<CComThread> m_spoComThread;
 
    CComboBox m_oCboPortNumber;
    CComboBox m_oCboBaudRate;

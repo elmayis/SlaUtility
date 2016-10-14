@@ -55,3 +55,14 @@ Testing...
 - Deadlock because the read thread is locking the COM port
 Will need to revise the read thread so that it will time out and allow another thread to access the port.
 May need to refactor and create only 1 thread that will read write.
+
+10-14-16
+Accessing the COM must be done synchronously. It seems that you cannot read and write at the same time. Maybe there is a way
+but I do not have time to learn that at this point in time. Therefore, I will not be able to have two threads to access the COM.
+I will need to revise the code so:
+1) one thread accesses the COM
+2) the read operation will have a timeout so that it will relinquish access to the COM if no data is ready to be read
+3) add a write buffer so that if writing to the COM is delayed all requests to write will be performed
+
+COM thread
+* Removing write and read threads and converting CCom as the a CWinThread...

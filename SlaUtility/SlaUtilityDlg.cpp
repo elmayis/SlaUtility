@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #include <functional>
 #include <string>
-#include "Com.h"
+#include "ComThread.h"
 #include "SlaUtility.h"
 #include "SlaUtilityDlg.h"
 #include "StatusCodes.h"
@@ -234,8 +234,8 @@ void CSlaUtilityDlg::OnBnClickedButtonConnect()
    CComSettings oComSettings;
    if (IsCommEntriesValid(oComSettings))
    {
-      m_spoCom.reset(new CCom(std::bind(&CSlaUtilityDlg::FireOutputMsg, this, std::placeholders::_1, std::placeholders::_2)));
-      if (NULL != m_spoCom)
+      m_spoComThread.reset(new CComThread(std::bind(&CSlaUtilityDlg::FireOutputMsg, this, std::placeholders::_1, std::placeholders::_2)));
+      if (NULL != m_spoComThread)
       {
          OpenCom(oComSettings);
       }
@@ -254,10 +254,10 @@ void CSlaUtilityDlg::OnBnClickedButtonConnect()
 void CSlaUtilityDlg::OnBnClickedButtonDisconnect()
 {
    EnableAllControls(false);
-   if (m_spoCom)
+   if (m_spoComThread)
    {
-      m_spoCom->Disconnect();
-      m_spoCom.reset();
+      m_spoComThread->Disconnect();
+      m_spoComThread.reset();
       OutputMessage("Disconnected from the COM port.");
    }
    EnableEnumComControls();
@@ -283,7 +283,7 @@ void CSlaUtilityDlg::OnBnClickedLoadFile()
 
 void CSlaUtilityDlg::OnBnClickedDownload()
 {
-   if (m_spoCom)
+   if (m_spoComThread)
    {
 
    }
@@ -292,11 +292,11 @@ void CSlaUtilityDlg::OnBnClickedDownload()
 void CSlaUtilityDlg::OnBnClickedSend()
 {
    GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(false);
-   if (m_spoCom)
+   if (m_spoComThread)
    {
       CString sCommand;
       m_oEditManualCmd.GetWindowText(sCommand);
-      m_spoCom->FireWrite(std::bind(&CSlaUtilityDlg::FireManualCmdWriteFinished, this, std::placeholders::_1), sCommand);
+      m_spoComThread->FireWrite(std::bind(&CSlaUtilityDlg::FireManualCmdWriteFinished, this, std::placeholders::_1), sCommand);
    }
 }
 
@@ -376,7 +376,7 @@ void CSlaUtilityDlg::OnCbnSelchangeComboHandshaking()
 
 void CSlaUtilityDlg::OpenCom(const CComSettings& oComSettings)
 {
-   const CStatusCodes::ECodes eErrCode = m_spoCom->Connect(oComSettings);
+   const CStatusCodes::ECodes eErrCode = m_spoComThread->Connect(oComSettings);
    if (CStatusCodes::SC_OK == eErrCode)
    {
       OutputMessage("Established connection to the COM port.");

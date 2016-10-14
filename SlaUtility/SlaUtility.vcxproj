@@ -181,10 +181,8 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ComReadThread.h" />
     <ClInclude Include="ComSettings.h" />
-    <ClInclude Include="Com.h" />
-    <ClInclude Include="ComWriteThread.h" />
+    <ClInclude Include="ComThread.h" />
     <ClInclude Include="Delegates.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SlaUtility.h" />
@@ -194,9 +192,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ComReadThread.cpp" />
-    <ClCompile Include="Com.cpp" />
-    <ClCompile Include="ComWriteThread.cpp" />
+    <ClCompile Include="ComThread.cpp" />
     <ClCompile Include="SlaUtility.cpp" />
     <ClCompile Include="SlaUtilityDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
