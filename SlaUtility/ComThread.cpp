@@ -10,16 +10,14 @@ CComThread::CComThread()
 {
 }
 
-CComThread::CComThread(const OutputMsgDelegate& oOutputMsgDelegate)
-:  OnOutputMsg(oOutputMsgDelegate),
-   m_hComm(NULL),
-   m_bAbort(false)
-{
-}
-
 CComThread::~CComThread()
 {
    Disconnect();
+}
+
+void CComThread::SetOutputMsgDelegate(const OutputMsgDelegate& oOutputMsgDelegate)
+{
+   OnOutputMsg = oOutputMsgDelegate;
 }
 
 CStatusCodes::ECodes CComThread::Connect(const CComSettings& oComSettings)
@@ -75,33 +73,14 @@ void CComThread::Disconnect(void)
    // Cancels pending IO on this thread
    //
    CancelSynchronousIo(this->m_hThread);
-
-   //if (m_spoComReadThread)
-   //{
-   //   m_spoComReadThread->Abort();
-   //   ::PostThreadMessage(m_spoComReadThread->m_nThreadID, WM_QUIT, 0, 0);
-   //   // In debug mode, we are much stricter about waiting for the thread to shutdown.
-   //   // Issue an error if it times out.
-   //   //
-   //   if (WAIT_TIMEOUT == ::MsgWaitForMultipleObjects(1, &m_spoComReadThread->m_hThread, FALSE, 5000, 0))
-   //   {
-   //      _RPTF1(_CRT_ERROR, "The '%s' thread did not shutdown in the time alloted.", "read");
-   //   }
-   //   m_spoComReadThread.reset();
-   //}
-   //if (m_spoComWriteThread)
-   //{
-   //   m_spoComWriteThread->Abort();
-   //   ::PostThreadMessage(m_spoComWriteThread->m_nThreadID, WM_QUIT, 0, 0);
-   //   // In debug mode, we are much stricter about waiting for the thread to shutdown.
-   //   // Issue an error if it times out.
-   //   //
-   //   if (WAIT_TIMEOUT == ::MsgWaitForMultipleObjects(1, &m_spoComWriteThread->m_hThread, FALSE, 5000, 0))
-   //   {
-   //      _RPTF1(_CRT_ERROR, "The '%s' thread did not shutdown in the time alloted.", "write");
-   //   }
-   //   m_spoComWriteThread.reset();
-   //}
+   ::PostThreadMessage(this->m_nThreadID, WM_QUIT, 0, 0);
+   // In debug mode, we are much stricter about waiting for the thread to shutdown.
+   // Issue an error if it times out.
+   //
+   if (WAIT_TIMEOUT == ::MsgWaitForMultipleObjects(1, &this->m_hThread, FALSE, 5000, 0))
+   {
+      _RPTF1(_CRT_ERROR, "The '%s' thread did not shutdown in the time alloted.", "read");
+   }
    if (NULL != m_hComm)
    {
       CloseHandle(m_hComm);

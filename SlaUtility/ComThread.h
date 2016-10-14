@@ -15,26 +15,31 @@ class CComThread : public CWinThread
    DECLARE_DYNCREATE(CComThread)
 public:
    CComThread();
-   CComThread(const OutputMsgDelegate& oOutputMsgDelegate);
    virtual ~CComThread();
 
-   /**
-      Synchronous method that establishes a connection to the port selected in the given settings
-      @param[in] oComSettings container with all the settings needed to establish communtion with a COM port
+   /*
+   Synchronous call that sets the delegate that will be called to output a message to the UI
+   @param[in] oOutputMsgDelegate delegate called to output a message to the UI
+   */
+   void SetOutputMsgDelegate(const OutputMsgDelegate& oOutputMsgDelegate);
 
-      @return error code
+   /*
+   Synchronous method that establishes a connection to the port selected in the given settings
+   @param[in] oComSettings container with all the settings needed to establish communtion with a COM port
+
+   @return error code
    */
    CStatusCodes::ECodes Connect(const CComSettings& oComSettings);
 
    /*
-      Shuts down the read or write operation then closes the handle
+   Shuts down the read or write operation, waits for the thread to stop, then closes the handle
    */
    void Disconnect(void);
 
-   /**
-      Asynchronously writes the text to the opened COM port using the writing thread
-      @param[in] oWriteFinishedDelegate delegate called when the operation is finished
-      @param[in] sBuffer contains the text to write to the COM port
+   /*
+   Asynchronously writes the text to the opened COM port using the writing thread
+   @param[in] oWriteFinishedDelegate delegate called when the operation is finished
+   @param[in] sBuffer contains the text to write to the COM port
    */
    void FireWrite(const WriteFinishedDelegate& oWriteFinishedDelegate, const CString& sBuffer);
 

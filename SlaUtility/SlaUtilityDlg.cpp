@@ -234,16 +234,22 @@ void CSlaUtilityDlg::OnBnClickedButtonConnect()
    CComSettings oComSettings;
    if (IsCommEntriesValid(oComSettings))
    {
-      m_spoComThread.reset(new CComThread(std::bind(&CSlaUtilityDlg::FireOutputMsg, this, std::placeholders::_1, std::placeholders::_2)));
+      m_spoComThread.reset(dynamic_cast<CComThread*>(AfxBeginThread(RUNTIME_CLASS(CComThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED)));
       if (NULL != m_spoComThread)
       {
+         // Do not allow the thread to delete itself because we will do it manually via the smart pointer
+         //
+         m_spoComThread->m_bAutoDelete = FALSE;
+         m_spoComThread->SetOutputMsgDelegate(std::bind(&CSlaUtilityDlg::FireOutputMsg, this, std::placeholders::_1, std::placeholders::_2));
+         // Start the threads pumping
+         //
+         m_spoComThread->ResumeThread();
          OpenCom(oComSettings);
       }
       else
       {
-         OutputMessage("Failed to create the COM object.");
+         OutputMessage("Failed to create the COM thread.", true);
       }
-
    }
    else
    {

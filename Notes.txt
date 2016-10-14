@@ -72,3 +72,5 @@ COM thread
  * Moved implementation from CComWriteThread to CComThread
  * Removed CComWriteThread
 Compiles and links but is NOT ready for testing.
+Updated the main dialog to create CComThread.
+Updated CComThread::Disconnect to stop IO, stop thread, and close COM handle.
