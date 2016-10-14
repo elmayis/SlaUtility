@@ -66,3 +66,9 @@ I will need to revise the code so:
 
 COM thread
 * Removing write and read threads and converting CCom as the a CWinThread...
+ * Renamed CCom to CComThread
+ * Moved implementation from CComReadThread to CComThread
+ * Removed CComReadThread
+ * Moved implementation from CComWriteThread to CComThread
+ * Removed CComWriteThread
+Compiles and links but is NOT ready for testing.
