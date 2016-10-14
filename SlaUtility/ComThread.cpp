@@ -27,43 +27,7 @@ CStatusCodes::ECodes CComThread::Connect(const CComSettings& oComSettings)
    CStatusCodes::ECodes eErrCode = CStatusCodes::SC_COM_OPEN_FAILED;
    if (OpenComm())
    {
-      eErrCode = CStatusCodes::SC_COM_SETTINGS_FAILED;
-      if (UpdateCommSettings())
-      {
-         //m_spoComReadThread.reset(dynamic_cast<CComReadThread*>(AfxBeginThread(RUNTIME_CLASS(CComReadThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED)));
-         //if (NULL != m_spoComReadThread)
-         //{
-         //   // Do not allow the thread to delete itself because we will do it manually via the smart pointer
-         //   //
-         //   m_spoComReadThread->m_bAutoDelete = FALSE;
-         //   m_spoComWriteThread.reset(dynamic_cast<CComWriteThread*>(AfxBeginThread(RUNTIME_CLASS(CComWriteThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED)));
-         //   if (NULL != m_spoComWriteThread)
-         //   {
-         //      // Do not allow the thread to delete itself because we will do it manually via the smart pointer
-         //      //
-         //      m_spoComWriteThread->m_bAutoDelete = FALSE;
-         //      m_spoComReadThread->SetComHandle(m_hComm);
-         //      m_spoComReadThread->SetOutputMsgDelegate(OnOutputMsg);
-         //      m_spoComWriteThread->SetComHandle(m_hComm);
-         //      m_spoComWriteThread->SetOutputMsgDelegate(OnOutputMsg);
-         //      // Start the threads pumping
-         //      //
-         //      m_spoComReadThread->ResumeThread();
-         //      m_spoComWriteThread->ResumeThread();
-         //      eErrCode = CStatusCodes::SC_OK;
-         //   }
-         //   else
-         //   {
-         //      eErrCode = CStatusCodes::SC_COM_WRITE_THREAD_FAILED;
-         //      OnOutputMsg("Failed to create the COM write thread.", true);
-         //   }
-         //}
-         //else
-         //{
-         //   eErrCode = CStatusCodes::SC_COM_READ_THREAD_FAILED;
-         //   OnOutputMsg("Failed to create the COM read thread.", true);
-         //}
-      }
+      eErrCode = UpdateCommSettings() ? CStatusCodes::SC_OK : CStatusCodes::SC_COM_SETTINGS_FAILED;
    }
    return eErrCode;
 }
@@ -108,7 +72,7 @@ BOOL CComThread::InitInstance()
 {
    // This will start the reading loop
    //
-   FireBeginRead();
+   //FireBeginRead();
    return TRUE;
 }
 
