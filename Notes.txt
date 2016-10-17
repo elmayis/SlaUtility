@@ -108,3 +108,9 @@ char ErrorChar			= 0		'\x0'
 char EofChar			= 0		'\x0'
 char EvtChar			= 0		'\x0'
 WORD wReserved1			= 0
+
+I updated the code to set the above settings.
+Since the IO operations are synchronous to minimize complexity, I need ReadFile to timeout if no data is available.
+The structure COMMTIMEOUTS is used for this.
+
+Need to read the current timeout settings then update OnReadCom.

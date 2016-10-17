@@ -52,10 +52,6 @@ protected:
 private:
 
    /**
-   */
-   void OnConnect(WPARAM wParam, LPARAM lParam);
-
-   /**
    Opens the COM port based on the selected port from the drop down list
    */
    bool OpenComm(void);
@@ -63,9 +59,16 @@ private:
    /**
    Updates the opened COM ports settings
 
-   @return true if successfully updated the COM settings
+   @return error code
    */
-   bool UpdateCommSettings(void);
+   CStatusCodes::ECodes UpdateCommSettings(void);
+
+   /*
+   Retrieves and updates the read timeout settings
+
+   @return error code
+   */
+   CStatusCodes::ECodes UpdateReadTimeoutSettings(void);
 
    /**
    Called by InitInstance to begin reading from the COM port

@@ -13,6 +13,8 @@ struct CStatusCodes
       SC_COM_READ_FAILED,              // Failed to read from COM
       SC_COM_WRITE_FAILED,             // WriteFile failed
       SC_COM_WRITE_MISMATCH,           // WriteFile output does not match buffer size
+      SC_COM_GET_TIMEOUT_FAILED,       // Failed to retrieve the COM timeout settings
+      SC_COM_SET_TIMEOUT_FAILED,       // Failed to set the COM timeout settings
       SC_UNKNOWN,
       END_OF_STATUS_CODES
    };

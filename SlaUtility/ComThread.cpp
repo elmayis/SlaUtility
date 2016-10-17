@@ -27,12 +27,16 @@ CStatusCodes::ECodes CComThread::Connect(const CComSettings& oComSettings)
    CStatusCodes::ECodes eErrCode = CStatusCodes::SC_COM_OPEN_FAILED;
    if (OpenComm())
    {
-      eErrCode = UpdateCommSettings() ? CStatusCodes::SC_OK : CStatusCodes::SC_COM_SETTINGS_FAILED;
+      eErrCode = UpdateCommSettings();
       if (CStatusCodes::SC_OK == eErrCode)
       {
-         // Start reading the COM
-         //
-         FireBeginRead();
+         eErrCode = UpdateReadTimeoutSettings();
+         if (CStatusCodes::SC_OK == eErrCode)
+         {
+            // Start reading the COM
+            //
+            FireBeginRead();
+         }
       }
    }
    return eErrCode;
@@ -62,7 +66,7 @@ void CComThread::FireWrite(const WriteFinishedDelegate& oWriteFinishedDelegate, 
 {
    // Allocate a copy of the delegate on the heap. This needs to be done so that the raw pointer can be
    // passed to this thread across thread bounderies. The OS layer is only capable of dealing with simple POD.
-   // The pointer will be free'd by the OnConnect message handler.
+   // The pointer will be free'd by the OnWrite message handler.
    //
    WriteFinishedDelegate* poDispatch = new WriteFinishedDelegate(oWriteFinishedDelegate);
    CString* poBuffer = new CString(sBuffer);
@@ -109,7 +113,7 @@ bool CComThread::OpenComm(void)
    return false;
 }
 
-bool CComThread::UpdateCommSettings(void)
+CStatusCodes::ECodes CComThread::UpdateCommSettings(void)
 {
    DCB oDcb;
    //  Initialize the DCB structure.
@@ -170,7 +174,7 @@ bool CComThread::UpdateCommSettings(void)
       //   break;
       //}
       //}
-      if (SetCommState(m_hComm, &oDcb)) return true;
+      if (SetCommState(m_hComm, &oDcb)) return CStatusCodes::SC_OK;
 
       CString sMsg;
       sMsg.Format("SetCommState failed with error %d.\n", GetLastError());
@@ -182,7 +186,19 @@ bool CComThread::UpdateCommSettings(void)
       sMsg.Format("GetCommState failed with error %d.\n", GetLastError());
       OnOutputMsg(sMsg, true);
    }
-   return false;
+   return CStatusCodes::SC_COM_SETTINGS_FAILED;
+}
+
+CStatusCodes::ECodes CComThread::UpdateReadTimeoutSettings(void)
+{
+   COMMTIMEOUTS oSettings;
+   if (!GetCommTimeouts(m_hComm, &oSettings)) return CStatusCodes::SC_COM_GET_TIMEOUT_FAILED;
+
+   oSettings.ReadIntervalTimeout = MAXDWORD;
+   oSettings.ReadTotalTimeoutMultiplier = 0;
+   oSettings.ReadTotalTimeoutConstant = 0;
+   
+   return SetCommTimeouts(m_hComm, &oSettings) ? CStatusCodes::SC_OK : CStatusCodes::SC_COM_SET_TIMEOUT_FAILED;
 }
 
 void CComThread::FireBeginRead(void)
@@ -192,6 +208,8 @@ void CComThread::FireBeginRead(void)
 
 void CComThread::OnReadCom(WPARAM wParam, LPARAM lParam)
 {
+   if (m_bAbort) return;
+
    //mayis
    //while (!m_bExitLoop)
    //{
