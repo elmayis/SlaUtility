@@ -74,3 +74,37 @@ COM thread
 Compiles and links but is NOT ready for testing.
 Updated the main dialog to create CComThread.
 Updated CComThread::Disconnect to stop IO, stop thread, and close COM handle.
+
+Need to redo the protocol
+
+10-17-16
+Using Arduino application to set the COM settings. Then I will read the settings to duplicate in the utility.
+Below are the settings retrieved after launching and closing the Arduino application.
+DWORD DCBlength			= 28
+DWORD BaudRate			= 9600
+DWORD fBinary			= 1
+DWORD fParity			= 0
+DWORD fOutxCtsFlow		= 0
+DWORD fOutxDsrFlow		= 0
+DWORD fDtrControl		= 1
+DWORD fDsrSensitivity	= 0
+DWORD fTXContinueOnXoff	= 1
+DWORD fOutX				= 0
+DWORD fInX				= 0
+DWORD fErrorChar		= 0
+DWORD fNull				= 0
+DWORD fRtsControl		= 1
+DWORD fAbortOnError		= 0
+DWORD fDummy2			= 0
+WORD wReserved			= 0
+WORD XonLim				= 2048
+WORD XoffLim			= 512
+BYTE ByteSize			= 8		'\xb'
+BYTE Parity				= 0		'\x0'
+BYTE StopBits			= 0		'\x0'
+char XonChar			= 17	'\x11'
+char XoffChar			= 19	'\x13'
+char ErrorChar			= 0		'\x0'
+char EofChar			= 0		'\x0'
+char EvtChar			= 0		'\x0'
+WORD wReserved1			= 0
