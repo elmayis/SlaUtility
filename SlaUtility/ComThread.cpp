@@ -28,6 +28,12 @@ CStatusCodes::ECodes CComThread::Connect(const CComSettings& oComSettings)
    if (OpenComm())
    {
       eErrCode = UpdateCommSettings() ? CStatusCodes::SC_OK : CStatusCodes::SC_COM_SETTINGS_FAILED;
+      if (CStatusCodes::SC_OK == eErrCode)
+      {
+         // Start reading the COM
+         //
+         FireBeginRead();
+      }
    }
    return eErrCode;
 }
@@ -122,14 +128,25 @@ bool CComThread::UpdateCommSettings(void)
 
       // The following is the default flow control
       //
-      oDcb.fOutxCtsFlow = false;
-      oDcb.fOutxDsrFlow = false;
-      oDcb.fRtsControl = false;
-      oDcb.fDtrControl = true;
-      oDcb.fRtsControl = true;
-      oDcb.fTXContinueOnXoff = true;
-      oDcb.fOutX = false;
-      oDcb.fInX = false;
+      oDcb.fBinary = 1;
+      oDcb.fOutxCtsFlow = 0;
+      oDcb.fOutxDsrFlow = 0;
+      oDcb.fDtrControl = 1;
+      oDcb.fDsrSensitivity = 0;
+      oDcb.fTXContinueOnXoff = 1;
+      oDcb.fOutX = 0;
+      oDcb.fInX = 0;
+      oDcb.fErrorChar = 0;
+      oDcb.fNull = 0;
+      oDcb.fRtsControl = 1;
+      oDcb.fAbortOnError = 0;
+      oDcb.XonLim = 2048;
+      oDcb.XoffLim = 512;
+      oDcb.XonChar = 17;                  // '\x11'
+      oDcb.XoffChar = 19;                 // '\x13'
+      oDcb.ErrorChar = 0;                 // '\x0'
+      oDcb.EofChar = 0;                   // '\x0'
+      oDcb.EvtChar = 0;                   // '\x0'
       // @todo need to figure this out sometime
       //
       //switch (m_spoComSettings->m_iHandshaking)
