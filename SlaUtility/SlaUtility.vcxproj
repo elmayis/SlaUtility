@@ -184,6 +184,7 @@
     <ClInclude Include="ComSettings.h" />
     <ClInclude Include="ComThread.h" />
     <ClInclude Include="Delegates.h" />
+    <ClInclude Include="OneShotTimer.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SlaUtility.h" />
     <ClInclude Include="SlaUtilityDlg.h" />
@@ -193,6 +194,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ComThread.cpp" />
+    <ClCompile Include="OneShotTimer.cpp" />
     <ClCompile Include="SlaUtility.cpp" />
     <ClCompile Include="SlaUtilityDlg.cpp" />
     <ClCompile Include="stdafx.cpp">

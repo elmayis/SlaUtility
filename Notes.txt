@@ -127,4 +127,15 @@ DWORD WriteTotalTimeoutConstant		= 0;	/* Constant in milliseconds.        */
 Hmmmmm, according to https://msdn.microsoft.com/en-us/library/windows/desktop/aa363190(v=vs.85).aspx a value of
 zero indicates that the timeouts are not used.
 
-I will try these settings to see if it works.
+I will try these settings to see if it works. Nope, they did not work. Maybe the Ardunio application is using
+the asynchronous API.
+
+I decided to set ReadIntervalTimeout to MAXDWORD according to the MSDN documentation link stated above. This
+worked. However, the call to FireBeginRead immediately after reading from the port causes 100% cpu usage which
+hangs the application.
+
+So, I need to add a Windows timer to pump the read operation.
+I added a COneShotTimer which is derived from CWnd and leverages the WM_TIMER. This worked but the values displayed are
+separated by alot of lines spaces.
+
+Need to check if a read timeout occurred so that an empty line will not be sent to the UI.

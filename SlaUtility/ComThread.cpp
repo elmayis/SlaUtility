@@ -1,5 +1,6 @@
 
 #include "stdafx.h"
+#include "OneShotTimer.h"
 #include "ComThread.h"
 
 IMPLEMENT_DYNCREATE(CComThread, CWinThread)
@@ -35,7 +36,8 @@ CStatusCodes::ECodes CComThread::Connect(const CComSettings& oComSettings)
          {
             // Start reading the COM
             //
-            FireBeginRead();
+            m_spoOneShotTimer.reset(new COneShotTimer(std::bind(&CComThread::FireBeginRead, this)));
+            m_spoOneShotTimer->Trigger(50);
          }
       }
    }
@@ -194,8 +196,8 @@ CStatusCodes::ECodes CComThread::UpdateTimeoutSettings(void)
    COMMTIMEOUTS oSettings;
    if (!GetCommTimeouts(m_hComm, &oSettings)) return CStatusCodes::SC_COM_GET_TIMEOUT_FAILED;
 
-   //oSettings.ReadIntervalTimeout = MAXDWORD;
-   oSettings.ReadIntervalTimeout = 0;
+   oSettings.ReadIntervalTimeout = MAXDWORD;
+   //oSettings.ReadIntervalTimeout = 0;
    oSettings.ReadTotalTimeoutMultiplier = 0;
    oSettings.ReadTotalTimeoutConstant = 0;
    oSettings.WriteTotalTimeoutConstant = 0;
@@ -213,18 +215,16 @@ void CComThread::OnReadCom(WPARAM wParam, LPARAM lParam)
 {
    if (m_bAbort) return;
 
-   //mayis
-   //while (!m_bExitLoop)
-   //{
-      char pcBuf[512];
-      DWORD dwBytesRead = 0;
-      const BOOL bResult = ReadFile(m_hComm, pcBuf, 512, &dwBytesRead, NULL);
-      //if (!m_bExitLoop && bResult)
-      {
-         CString sData(pcBuf, dwBytesRead);
-         OnOutputMsg(sData, false);
-      }
-   //}
+   char pcBuf[512];
+   memset(pcBuf, 0, 512);
+   DWORD dwBytesRead = 0;
+   const BOOL bResult = ReadFile(m_hComm, pcBuf, 512, &dwBytesRead, NULL);
+   if (bResult)
+   {
+      CString sData(pcBuf, dwBytesRead);
+      OnOutputMsg(sData, false);
+   }
+   m_spoOneShotTimer->Trigger(50);
 }
 
 void CComThread::OnWriteBuffer(WPARAM wParam, LPARAM lParam)

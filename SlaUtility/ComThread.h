@@ -7,6 +7,8 @@
 #include "Delegates.h"
 #include "StatusCodes.h"
 
+class COneShotTimer;
+
 /**
    Interface to a COM port
 */
@@ -96,6 +98,11 @@ private:
       Settings passed in when requesting connection
    */
    std::shared_ptr<CComSettings> m_spoComSettings;
+
+   /*
+   Used to pump the read operation
+   */
+   std::shared_ptr<COneShotTimer> m_spoOneShotTimer;
 
    /**
    Handle to the COM port to the Arduino
