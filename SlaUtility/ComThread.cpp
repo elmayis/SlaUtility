@@ -30,7 +30,7 @@ CStatusCodes::ECodes CComThread::Connect(const CComSettings& oComSettings)
       eErrCode = UpdateCommSettings();
       if (CStatusCodes::SC_OK == eErrCode)
       {
-         eErrCode = UpdateReadTimeoutSettings();
+         eErrCode = UpdateTimeoutSettings();
          if (CStatusCodes::SC_OK == eErrCode)
          {
             // Start reading the COM
@@ -189,14 +189,17 @@ CStatusCodes::ECodes CComThread::UpdateCommSettings(void)
    return CStatusCodes::SC_COM_SETTINGS_FAILED;
 }
 
-CStatusCodes::ECodes CComThread::UpdateReadTimeoutSettings(void)
+CStatusCodes::ECodes CComThread::UpdateTimeoutSettings(void)
 {
    COMMTIMEOUTS oSettings;
    if (!GetCommTimeouts(m_hComm, &oSettings)) return CStatusCodes::SC_COM_GET_TIMEOUT_FAILED;
 
-   oSettings.ReadIntervalTimeout = MAXDWORD;
+   //oSettings.ReadIntervalTimeout = MAXDWORD;
+   oSettings.ReadIntervalTimeout = 0;
    oSettings.ReadTotalTimeoutMultiplier = 0;
    oSettings.ReadTotalTimeoutConstant = 0;
+   oSettings.WriteTotalTimeoutConstant = 0;
+   oSettings.WriteTotalTimeoutMultiplier = 0;
    
    return SetCommTimeouts(m_hComm, &oSettings) ? CStatusCodes::SC_OK : CStatusCodes::SC_COM_SET_TIMEOUT_FAILED;
 }

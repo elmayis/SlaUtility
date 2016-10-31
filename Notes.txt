@@ -114,3 +114,17 @@ Since the IO operations are synchronous to minimize complexity, I need ReadFile 
 The structure COMMTIMEOUTS is used for this.
 
 Need to read the current timeout settings then update OnReadCom.
+
+10-31-16
+Reading the current timeout settings by connecting using Arduino then reading using the API...
+COMMTIMEOUTS
+DWORD ReadIntervalTimeout			= 0;    /* Maximum time between read chars. */
+DWORD ReadTotalTimeoutMultiplier	= 0;	/* Multiplier of characters.        */
+DWORD ReadTotalTimeoutConstant		= 0;    /* Constant in milliseconds.        */
+DWORD WriteTotalTimeoutMultiplier	= 0;	/* Multiplier of characters.        */
+DWORD WriteTotalTimeoutConstant		= 0;	/* Constant in milliseconds.        */
+
+Hmmmmm, according to https://msdn.microsoft.com/en-us/library/windows/desktop/aa363190(v=vs.85).aspx a value of
+zero indicates that the timeouts are not used.
+
+I will try these settings to see if it works.

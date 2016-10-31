@@ -64,11 +64,11 @@ private:
    CStatusCodes::ECodes UpdateCommSettings(void);
 
    /*
-   Retrieves and updates the read timeout settings
+   Retrieves and updates the read and write timeout settings. Disable the timeouts by setting all members to zero.
 
    @return error code
    */
-   CStatusCodes::ECodes UpdateReadTimeoutSettings(void);
+   CStatusCodes::ECodes UpdateTimeoutSettings(void);
 
    /**
    Called by InitInstance to begin reading from the COM port
