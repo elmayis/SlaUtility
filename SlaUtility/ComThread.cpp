@@ -219,7 +219,7 @@ void CComThread::OnReadCom(WPARAM wParam, LPARAM lParam)
    memset(pcBuf, 0, 512);
    DWORD dwBytesRead = 0;
    const BOOL bResult = ReadFile(m_hComm, pcBuf, 512, &dwBytesRead, NULL);
-   if (bResult)
+   if (bResult && (0 != dwBytesRead))
    {
       CString sData(pcBuf, dwBytesRead);
       OnOutputMsg(sData, false);

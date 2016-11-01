@@ -139,3 +139,7 @@ I added a COneShotTimer which is derived from CWnd and leverages the WM_TIMER. T
 separated by alot of lines spaces.
 
 Need to check if a read timeout occurred so that an empty line will not be sent to the UI.
+
+11-1-16
+I added a check to see if the bytes read is not zero. If zero then an output message will not be invoked. This
+worked.

@@ -207,7 +207,7 @@ void CSlaUtilityDlg::OnBnClickedButtonSerialPorts()
       {
          CString sErrMsg;
          const DWORD dwErrCode = GetLastError();
-         sErrMsg.Format("CreateFile failed with error code %d for %s.", dwErrCode, sNumber);
+         sErrMsg.Format("CreateFile failed with error code %d for %s.\n", dwErrCode, sNumber);
          OutputMessage(sErrMsg);
       }
    }
@@ -248,12 +248,12 @@ void CSlaUtilityDlg::OnBnClickedButtonConnect()
       }
       else
       {
-         OutputMessage("Failed to create the COM thread.", true);
+         OutputMessage("Failed to create the COM thread.\n", true);
       }
    }
    else
    {
-      OutputMessage("All COM setting entries are not valid.");
+      OutputMessage("All COM setting entries are not valid.\n");
    }
 }
 
@@ -264,7 +264,7 @@ void CSlaUtilityDlg::OnBnClickedButtonDisconnect()
    {
       m_spoComThread->Disconnect();
       m_spoComThread.reset();
-      OutputMessage("Disconnected from the COM port.");
+      OutputMessage("\nDisconnected from the COM port.\n");
    }
    EnableEnumComControls();
 }
@@ -385,13 +385,13 @@ void CSlaUtilityDlg::OpenCom(const CComSettings& oComSettings)
    const CStatusCodes::ECodes eErrCode = m_spoComThread->Connect(oComSettings);
    if (CStatusCodes::SC_OK == eErrCode)
    {
-      OutputMessage("Established connection to the COM port.");
+      OutputMessage("Established connection to the COM port.\n");
       EnableConnectedControls();
    }
    else
    {
       CString sMsg;
-      sMsg.Format("COM connection failed with status code %d.", eErrCode);
+      sMsg.Format("COM connection failed with status code %d.\n", eErrCode);
       OutputMessage(sMsg);
    }
 }
@@ -408,7 +408,7 @@ LRESULT CSlaUtilityDlg::OnManualCmdWriteFinished(WPARAM wParam, LPARAM lParam)
    if (CStatusCodes::SC_OK != wParam)
    {
       CString sMsg;
-      sMsg.Format("Failed to write command to COM port. Error code: %d.", wParam);
+      sMsg.Format("Failed to write command to COM port. Error code: %d.\n", wParam);
       OutputMessage(sMsg);
    }
    GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(true);
@@ -856,9 +856,8 @@ void CSlaUtilityDlg::EnableAllControls(bool bEnable)
 
 void CSlaUtilityDlg::OutputMessage(const CString& sMsg, bool bPresentModal)
 {
-   const CString sNewMessage = sMsg + "\n";
    m_oOutputWnd.SetSel(-1, -1);
-   m_oOutputWnd.ReplaceSel(sNewMessage);
+   m_oOutputWnd.ReplaceSel(sMsg);
 
    // The following logic will scroll to the end of the last line in the output window.
    // Get the line number of the last character
