@@ -224,7 +224,10 @@ void CComThread::OnReadCom(WPARAM wParam, LPARAM lParam)
       CString sData(pcBuf, dwBytesRead);
       OnOutputMsg(sData, false);
    }
-   m_spoOneShotTimer->Trigger(50);
+   if (!m_bAbort)
+   {
+      m_spoOneShotTimer->Trigger(50);
+   }
 }
 
 void CComThread::OnWriteBuffer(WPARAM wParam, LPARAM lParam)

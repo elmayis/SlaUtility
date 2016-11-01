@@ -88,6 +88,7 @@ BEGIN_MESSAGE_MAP(CSlaUtilityDlg, CDialogEx)
    ON_CBN_SELCHANGE(IDC_COMBO_HANDSHAKING, &CSlaUtilityDlg::OnCbnSelchangeComboHandshaking)
 
    ON_MESSAGE(WM_ON_OUTPUT_MSG, OnOutputMsg)
+   ON_MESSAGE(WM_ON_MANUAL_CMD_WRITE_FINISHED, OnManualCmdWriteFinished)
 
 END_MESSAGE_MAP()
 
@@ -405,7 +406,11 @@ LRESULT CSlaUtilityDlg::OnOutputMsg(WPARAM wParam, LPARAM lParam)
 
 LRESULT CSlaUtilityDlg::OnManualCmdWriteFinished(WPARAM wParam, LPARAM lParam)
 {
-   if (CStatusCodes::SC_OK != wParam)
+   if (CStatusCodes::SC_OK == wParam)
+   {
+      OutputMessage("Command written successfully.\n");
+   }
+   else
    {
       CString sMsg;
       sMsg.Format("Failed to write command to COM port. Error code: %d.\n", wParam);
