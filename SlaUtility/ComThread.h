@@ -83,6 +83,9 @@ private:
    void OnReadCom(WPARAM wParam, LPARAM lParam);
 
    /*
+   Event handler that writes the string buffer to the selected COM
+   @param[in] wParam is the WriteFinishedDelegate to call when finished
+   @param[in] lParam is the CString buffer
    */
    void OnWriteBuffer(WPARAM wParam, LPARAM lParam);
 

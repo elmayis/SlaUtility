@@ -82,9 +82,6 @@ END_MESSAGE_MAP()
 
 BOOL CComThread::InitInstance()
 {
-   // This will start the reading loop
-   //
-   //FireBeginRead();
    return TRUE;
 }
 
@@ -197,7 +194,6 @@ CStatusCodes::ECodes CComThread::UpdateTimeoutSettings(void)
    if (!GetCommTimeouts(m_hComm, &oSettings)) return CStatusCodes::SC_COM_GET_TIMEOUT_FAILED;
 
    oSettings.ReadIntervalTimeout = MAXDWORD;
-   //oSettings.ReadIntervalTimeout = 0;
    oSettings.ReadTotalTimeoutMultiplier = 0;
    oSettings.ReadTotalTimeoutConstant = 0;
    oSettings.WriteTotalTimeoutConstant = 0;

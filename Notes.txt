@@ -143,3 +143,11 @@ Need to check if a read timeout occurred so that an empty line will not be sent 
 11-1-16
 I added a check to see if the bytes read is not zero. If zero then an output message will not be invoked. This
 worked.
+
+11-15-16
+The next item to work on is the download logic that will download the ILDA file to the Ardunio.
+- The dialog to select the file is already implemented
+- Once the file is selected, what is the next step?
+  - The file should be read from the main UI
+  - The size of each buffer sent to the COM should be retrieved from the COM so that an overflow will not occur
+  - The delegate will be defined by the loop that reads the file

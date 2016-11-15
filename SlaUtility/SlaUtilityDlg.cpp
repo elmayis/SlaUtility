@@ -294,6 +294,10 @@ void CSlaUtilityDlg::OnBnClickedDownload()
    {
 
    }
+   else
+   {
+      OutputMessage("Please select a COM to download the contents of the file then download the file again.");
+   }
 }
 
 void CSlaUtilityDlg::OnBnClickedSend()
