@@ -45,6 +45,13 @@ public:
    */
    void FireWrite(const WriteFinishedDelegate& oWriteFinishedDelegate, const CString& sBuffer);
 
+   /*
+   @note this is only valid after the connection is established
+
+   @return size of the write buffer 
+   */
+   int GetWriteBufferSize(void) const;
+
 protected:
    virtual BOOL InitInstance();
    virtual int ExitInstance();

@@ -151,3 +151,6 @@ The next item to work on is the download logic that will download the ILDA file 
   - The file should be read from the main UI
   - The size of each buffer sent to the COM should be retrieved from the COM so that an overflow will not occur
   - The delegate will be defined by the loop that reads the file
+
+Started implementation. Need to determine how to retrieve the size of the write buffer.
+

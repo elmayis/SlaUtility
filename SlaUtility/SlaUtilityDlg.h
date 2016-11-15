@@ -63,6 +63,11 @@ protected:
    */
    afx_msg LRESULT OnManualCmdWriteFinished(WPARAM wParam, LPARAM lParam);
 
+   /**
+   Event handler that is called when the next write operation is to be executed
+   */
+   afx_msg LRESULT OnWriteNextFileBuffer(WPARAM wParam, LPARAM lParam);
+
    DECLARE_MESSAGE_MAP()
 
 private:
@@ -196,8 +201,20 @@ private:
    */
    void FireManualCmdWriteFinished(int iErrCode);
 
+   /*
+   Opens the file for reading and initializes the buffer size
+   */
+   void PrepareToDownload(void);
+
+   /*
+
+   */
+   void FireWriteNextFileBuffer(void);
+
    static const int WM_ON_OUTPUT_MSG                  = WM_USER + 1;
    static const int WM_ON_MANUAL_CMD_WRITE_FINISHED   = WM_ON_OUTPUT_MSG + 1;
+   static const int WM_ON_WRITE_NEXT_FILE_BUFFER      = WM_ON_MANUAL_CMD_WRITE_FINISHED + 1;
+   static const int WM_ON_FILE_BUFFER_WRITE_FINISHED  = WM_ON_WRITE_NEXT_FILE_BUFFER + 1;
 
    std::shared_ptr<CComThread> m_spoComThread;
 

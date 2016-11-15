@@ -87,8 +87,9 @@ BEGIN_MESSAGE_MAP(CSlaUtilityDlg, CDialogEx)
    ON_CBN_SELCHANGE(IDC_COMBO_PARITY, &CSlaUtilityDlg::OnCbnSelchangeComboParity)
    ON_CBN_SELCHANGE(IDC_COMBO_HANDSHAKING, &CSlaUtilityDlg::OnCbnSelchangeComboHandshaking)
 
-   ON_MESSAGE(WM_ON_OUTPUT_MSG, OnOutputMsg)
-   ON_MESSAGE(WM_ON_MANUAL_CMD_WRITE_FINISHED, OnManualCmdWriteFinished)
+   ON_MESSAGE(WM_ON_OUTPUT_MSG, &CSlaUtilityDlg::OnOutputMsg)
+   ON_MESSAGE(WM_ON_MANUAL_CMD_WRITE_FINISHED, &CSlaUtilityDlg::OnManualCmdWriteFinished)
+   ON_MESSAGE(WM_ON_WRITE_NEXT_FILE_BUFFER, &CSlaUtilityDlg::OnWriteNextFileBuffer)
 
 END_MESSAGE_MAP()
 
@@ -281,18 +282,20 @@ void CSlaUtilityDlg::OnBnClickedLoadFile()
       "ILDA File (*.ild)|*.ild|");
    //oBrowse.m_pOFN->lpstrInitialDir = folder;
    oBrowse.m_pOFN->lpstrTitle = "Select an ILDA file to download";
+   bool bEnableDnldBtn = false;
    if (IDOK == oBrowse.DoModal())
    {
       m_sPathName = oBrowse.GetPathName();
-      GetDlgItem(IDC_BUTTON_DOWNLOAD)->EnableWindow(true);
+      bEnableDnldBtn = true;
    }
+   GetDlgItem(IDC_BUTTON_DOWNLOAD)->EnableWindow(bEnableDnldBtn);
 }
 
 void CSlaUtilityDlg::OnBnClickedDownload()
 {
    if (m_spoComThread)
    {
-
+      PrepareToDownload();
    }
    else
    {
@@ -421,6 +424,11 @@ LRESULT CSlaUtilityDlg::OnManualCmdWriteFinished(WPARAM wParam, LPARAM lParam)
       OutputMessage(sMsg);
    }
    GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(true);
+   return 0;
+}
+
+LRESULT CSlaUtilityDlg::OnWriteNextFileBuffer(WPARAM wParam, LPARAM lParam)
+{
    return 0;
 }
 
@@ -897,4 +905,21 @@ void CSlaUtilityDlg::FireOutputMsg(const CString& sMsg, bool bPresentModal)
 void CSlaUtilityDlg::FireManualCmdWriteFinished(int iErrCode)
 {
    PostMessage(WM_ON_MANUAL_CMD_WRITE_FINISHED, iErrCode, 0);
+}
+
+void CSlaUtilityDlg::PrepareToDownload(void)
+{
+   if (!m_sPathName.IsEmpty())
+   {
+
+   }
+   else
+   {
+      OutputMessage("Please select a file to download then try again.");
+   }
+}
+
+void CSlaUtilityDlg::FireWriteNextFileBuffer(void)
+{
+   PostMessage(WM_ON_WRITE_NEXT_FILE_BUFFER, 0, 0);
 }
