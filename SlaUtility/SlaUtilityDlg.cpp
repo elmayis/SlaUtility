@@ -432,12 +432,29 @@ LRESULT CSlaUtilityDlg::OnWriteNextFileBuffer(WPARAM wParam, LPARAM lParam)
 {
    if (!m_oFileStream.eof())
    {
+      char szBuffer[16];
+      // Read characters from the file including new lines, etc...
+      //
+      int iCount = 0;
+      for (; iCount < 16; iCount++)
+      {
+         szBuffer[iCount] = m_oFileStream.get();
+         if (m_oFileStream.eof())
+         {
+            iCount++;
+            break;
+         }
+      }
+      szBuffer[iCount] = NULL;
+      const CString sBuffer(szBuffer);
+      if (!sBuffer.IsEmpty())
+      {
+         m_spoComThread->FireWrite(std::bind(&CSlaUtilityDlg::FireWriteNextFileBuffer, this), sBuffer);
+         return 0;
+      }
+   }
 
-   }
-   else
-   {
-      FinishedWritingFile();
-   }
+   FinishedWritingFile();
    return 0;
 }
 
