@@ -164,3 +164,4 @@ I do not believe that I can read and write to COM at the same time. The benefit 
 is that each message is handled serially.
 
 Implementing an input file stream...
+- The file contents contain the NULL character after the initial ILDA string. Need to research the ILDA format again.
