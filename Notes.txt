@@ -154,3 +154,13 @@ The next item to work on is the download logic that will download the ILDA file 
 
 Started implementation. Need to determine how to retrieve the size of the write buffer.
 
+11-17-16
+Researching how to retrieve the COM's write buffer size...
+- The FIFO is a 16 byte buffer. That is it.
+- WriteFile seems to manage the amount of data to send to the port.
+- Therefore, the buffer size that will be used by this application will govern how long the WriteFile will hold on to
+  the port.
+I do not believe that I can read and write to COM at the same time. The benefit to posting messages to the COM thread
+is that each message is handled serially.
+
+Implementing an input file stream...

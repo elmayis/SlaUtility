@@ -75,11 +75,6 @@ void CComThread::FireWrite(const WriteFinishedDelegate& oWriteFinishedDelegate, 
    PostThreadMessage(WM_WRITE_BUFFER, reinterpret_cast<WPARAM>(poDispatch), reinterpret_cast<LPARAM>(poBuffer));
 }
 
-int CComThread::GetWriteBufferSize(void) const
-{
-   return;
-}
-
 BEGIN_MESSAGE_MAP(CComThread, CWinThread)
    ON_THREAD_MESSAGE(WM_READ_COM, OnReadCom)
    ON_THREAD_MESSAGE(WM_WRITE_BUFFER, OnWriteBuffer)

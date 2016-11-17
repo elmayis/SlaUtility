@@ -293,6 +293,7 @@ void CSlaUtilityDlg::OnBnClickedLoadFile()
 
 void CSlaUtilityDlg::OnBnClickedDownload()
 {
+   //mayis - may need to disable some controls here
    if (m_spoComThread)
    {
       PrepareToDownload();
@@ -429,6 +430,14 @@ LRESULT CSlaUtilityDlg::OnManualCmdWriteFinished(WPARAM wParam, LPARAM lParam)
 
 LRESULT CSlaUtilityDlg::OnWriteNextFileBuffer(WPARAM wParam, LPARAM lParam)
 {
+   if (!m_oFileStream.eof())
+   {
+
+   }
+   else
+   {
+      FinishedWritingFile();
+   }
    return 0;
 }
 
@@ -911,7 +920,19 @@ void CSlaUtilityDlg::PrepareToDownload(void)
 {
    if (!m_sPathName.IsEmpty())
    {
-
+      if (m_oFileStream.is_open())
+      {
+         m_oFileStream.close();
+      }
+      m_oFileStream.open(m_sPathName);
+      if (m_oFileStream.good())
+      {
+         OnWriteNextFileBuffer(0, 0);
+      }
+      else
+      {
+         OutputMessage("The file stream failed to open.");
+      }
    }
    else
    {
@@ -922,4 +943,9 @@ void CSlaUtilityDlg::PrepareToDownload(void)
 void CSlaUtilityDlg::FireWriteNextFileBuffer(void)
 {
    PostMessage(WM_ON_WRITE_NEXT_FILE_BUFFER, 0, 0);
+}
+
+void CSlaUtilityDlg::FinishedWritingFile(void)
+{
+   //mayis - enable controls
 }

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <memory>
+#include <fstream>
 #include "ComSettings.h"
 
 class CComThread;
@@ -207,9 +208,16 @@ private:
    void PrepareToDownload(void);
 
    /*
-
+   Called by the COM thread when the write operation is finished. Will post a message to the thread
+   to invoke the event handler OnWriteNextFileBuffer.
    */
    void FireWriteNextFileBuffer(void);
+
+   /*
+   Called when the entire contents of the file have been written to the COM port or the operation has
+   been aborted.
+   */
+   void FinishedWritingFile(void);
 
    static const int WM_ON_OUTPUT_MSG                  = WM_USER + 1;
    static const int WM_ON_MANUAL_CMD_WRITE_FINISHED   = WM_ON_OUTPUT_MSG + 1;
@@ -231,12 +239,17 @@ private:
    CEdit m_oEditManualCmd;
 
    /**
-      This is the output window
+   This is the output window
    */
    CRichEditCtrl m_oOutputWnd;
 
    /**
-      The full path and file name
+   This is the file stream to download to the Arduino via the COM port
+   */
+   std::ifstream m_oFileStream;
+
+   /**
+   The full path and file name
    */
    CString m_sPathName;
 };
