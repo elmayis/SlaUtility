@@ -224,6 +224,8 @@ private:
    static const int WM_ON_WRITE_NEXT_FILE_BUFFER      = WM_ON_MANUAL_CMD_WRITE_FINISHED + 1;
    static const int WM_ON_FILE_BUFFER_WRITE_FINISHED  = WM_ON_WRITE_NEXT_FILE_BUFFER + 1;
 
+   static const int k_iBufferMax = 16;
+
    std::shared_ptr<CComThread> m_spoComThread;
 
    CComboBox m_oCboPortNumber;

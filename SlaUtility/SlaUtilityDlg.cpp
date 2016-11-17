@@ -430,13 +430,17 @@ LRESULT CSlaUtilityDlg::OnManualCmdWriteFinished(WPARAM wParam, LPARAM lParam)
 
 LRESULT CSlaUtilityDlg::OnWriteNextFileBuffer(WPARAM wParam, LPARAM lParam)
 {
+   // If disconnected then do not proceed
+   //
+   if (!m_spoComThread) return 0;
+
    if (!m_oFileStream.eof())
    {
-      char szBuffer[16];
+      char szBuffer[k_iBufferMax];
       // Read characters from the file including new lines, etc...
       //
       int iCount = 0;
-      for (; iCount < 16; iCount++)
+      for (; iCount < (k_iBufferMax - 1); iCount++)
       {
          szBuffer[iCount] = m_oFileStream.get();
          if (m_oFileStream.eof())
@@ -948,12 +952,12 @@ void CSlaUtilityDlg::PrepareToDownload(void)
       }
       else
       {
-         OutputMessage("The file stream failed to open.");
+         OutputMessage("The file stream failed to open.\n");
       }
    }
    else
    {
-      OutputMessage("Please select a file to download then try again.");
+      OutputMessage("Please select a file to download then try again.\n");
    }
 }
 
@@ -965,4 +969,5 @@ void CSlaUtilityDlg::FireWriteNextFileBuffer(void)
 void CSlaUtilityDlg::FinishedWritingFile(void)
 {
    //mayis - enable controls
+   OutputMessage("Finished writing the file contents to the COM port.\n");
 }
