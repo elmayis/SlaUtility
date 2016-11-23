@@ -973,5 +973,5 @@ void CSlaUtilityDlg::FireWriteNextFileBuffer(void)
 void CSlaUtilityDlg::FinishedWritingFile(void)
 {
    //mayis - enable controls
-   OutputMessage("Finished writing the file contents to the COM port.\n");
+   FireOutputMsg("Finished writing the file contents to the COM port.\n", false);
 }
