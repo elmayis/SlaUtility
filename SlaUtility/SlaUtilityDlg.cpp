@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include <functional>
 #include <string>
+#include <vector>
 #include "ComThread.h"
 #include "SlaUtility.h"
 #include "SlaUtilityDlg.h"
@@ -311,7 +312,12 @@ void CSlaUtilityDlg::OnBnClickedSend()
    {
       CString sCommand;
       m_oEditManualCmd.GetWindowText(sCommand);
-      m_spoComThread->FireWrite(std::bind(&CSlaUtilityDlg::FireManualCmdWriteFinished, this, std::placeholders::_1), sCommand);
+      CComThread::CDataBuffer oDataBuffer;
+      for (int iIndex = 0; iIndex < sCommand.GetLength(); iIndex++)
+      {
+         oDataBuffer.push_back(sCommand.GetAt(iIndex));
+      }
+      m_spoComThread->FireWrite(std::bind(&CSlaUtilityDlg::FireManualCmdWriteFinished, this, std::placeholders::_1), oDataBuffer);
    }
 }
 
@@ -436,24 +442,22 @@ LRESULT CSlaUtilityDlg::OnWriteNextFileBuffer(WPARAM wParam, LPARAM lParam)
 
    if (!m_oFileStream.eof())
    {
-      char szBuffer[k_iBufferMax];
+      std::vector<char> oDataBuffer;
       // Read characters from the file including new lines, etc...
       //
       int iCount = 0;
       for (; iCount < (k_iBufferMax - 1); iCount++)
       {
-         szBuffer[iCount] = m_oFileStream.get();
+         oDataBuffer.push_back(m_oFileStream.get());
          if (m_oFileStream.eof())
          {
             iCount++;
             break;
          }
       }
-      szBuffer[iCount] = NULL;
-      const CString sBuffer(szBuffer);
-      if (!sBuffer.IsEmpty())
+      if (!oDataBuffer.empty())
       {
-         m_spoComThread->FireWrite(std::bind(&CSlaUtilityDlg::FireWriteNextFileBuffer, this), sBuffer);
+         m_spoComThread->FireWrite(std::bind(&CSlaUtilityDlg::FireWriteNextFileBuffer, this), oDataBuffer);
          return 0;
       }
    }
@@ -945,7 +949,7 @@ void CSlaUtilityDlg::PrepareToDownload(void)
       {
          m_oFileStream.close();
       }
-      m_oFileStream.open(m_sPathName);
+      m_oFileStream.open(m_sPathName, std::ios_base::binary);
       if (m_oFileStream.good())
       {
          OnWriteNextFileBuffer(0, 0);

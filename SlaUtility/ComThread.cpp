@@ -64,14 +64,14 @@ void CComThread::Disconnect(void)
    }
 }
 
-void CComThread::FireWrite(const WriteFinishedDelegate& oWriteFinishedDelegate, const CString& sBuffer)
+void CComThread::FireWrite(const WriteFinishedDelegate& oWriteFinishedDelegate, const CDataBuffer& oBuffer)
 {
    // Allocate a copy of the delegate on the heap. This needs to be done so that the raw pointer can be
    // passed to this thread across thread bounderies. The OS layer is only capable of dealing with simple POD.
    // The pointer will be free'd by the OnWrite message handler.
    //
    WriteFinishedDelegate* poDispatch = new WriteFinishedDelegate(oWriteFinishedDelegate);
-   CString* poBuffer = new CString(sBuffer);
+   CDataBuffer* poBuffer = new CDataBuffer(oBuffer);
    PostThreadMessage(WM_WRITE_BUFFER, reinterpret_cast<WPARAM>(poDispatch), reinterpret_cast<LPARAM>(poBuffer));
 }
 
@@ -234,14 +234,13 @@ void CComThread::OnWriteBuffer(WPARAM wParam, LPARAM lParam)
    // so that it is destroyed upon function exit.
    //
    std::shared_ptr<WriteFinishedDelegate> spoDispatch(reinterpret_cast<WriteFinishedDelegate*>(wParam));
-   std::shared_ptr<CString> spoBuffer(reinterpret_cast<CString*>(lParam));
+   std::shared_ptr<CDataBuffer> spoBuffer(reinterpret_cast<CDataBuffer*>(lParam));
 
    DWORD dwBytesWritten = 0;
    CStatusCodes::ECodes eErrCode = CStatusCodes::SC_COM_WRITE_FAILED;
-   if (WriteFile(m_hComm, spoBuffer->GetBuffer(), spoBuffer->GetLength(), &dwBytesWritten, NULL))
+   if (WriteFile(m_hComm, &(spoBuffer->front()), spoBuffer->size(), &dwBytesWritten, NULL))
    {
-      eErrCode =
-         (spoBuffer->GetLength() == dwBytesWritten) ? CStatusCodes::SC_OK : CStatusCodes::SC_COM_WRITE_MISMATCH;
+      eErrCode = (spoBuffer->size() == dwBytesWritten) ? CStatusCodes::SC_OK : CStatusCodes::SC_COM_WRITE_MISMATCH;
    }
    if (!m_bAbort)
    {

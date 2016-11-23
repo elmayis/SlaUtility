@@ -165,3 +165,7 @@ is that each message is handled serially.
 
 Implementing an input file stream...
 - The file contents contain the NULL character after the initial ILDA string. Need to research the ILDA format again.
+
+11-23-16
+NOTE: We must not send or parse using ascii because the data can contain the byte value of zero!
+

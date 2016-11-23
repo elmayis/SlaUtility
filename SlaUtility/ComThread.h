@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <memory>
+#include <vector>
 #include "ComSettings.h"
 #include "Delegates.h"
 #include "StatusCodes.h"
@@ -16,6 +17,8 @@ class CComThread : public CWinThread
 {
    DECLARE_DYNCREATE(CComThread)
 public:
+   typedef std::vector<char> CDataBuffer;
+
    CComThread();
    virtual ~CComThread();
 
@@ -41,9 +44,9 @@ public:
    /*
    Asynchronously writes the text to the opened COM port using the writing thread
    @param[in] oWriteFinishedDelegate delegate called when the operation is finished
-   @param[in] sBuffer contains the text to write to the COM port
+   @param[in] oBuffer contains binary data to write to the COM port
    */
-   void FireWrite(const WriteFinishedDelegate& oWriteFinishedDelegate, const CString& sBuffer);
+   void FireWrite(const WriteFinishedDelegate& oWriteFinishedDelegate, const CDataBuffer& oBuffer);
 
 protected:
    virtual BOOL InitInstance();
@@ -85,7 +88,7 @@ private:
    /*
    Event handler that writes the string buffer to the selected COM
    @param[in] wParam is the WriteFinishedDelegate to call when finished
-   @param[in] lParam is the CString buffer
+   @param[in] lParam is an instance of CDataBuffer
    */
    void OnWriteBuffer(WPARAM wParam, LPARAM lParam);
 
