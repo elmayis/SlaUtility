@@ -169,3 +169,4 @@ Implementing an input file stream...
 11-23-16
 NOTE: We must not send or parse using ascii because the data can contain the byte value of zero!
 
+Replaced using CString as the buffer with std::vector<char>.

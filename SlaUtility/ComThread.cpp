@@ -238,7 +238,7 @@ void CComThread::OnWriteBuffer(WPARAM wParam, LPARAM lParam)
 
    DWORD dwBytesWritten = 0;
    CStatusCodes::ECodes eErrCode = CStatusCodes::SC_COM_WRITE_FAILED;
-   if (WriteFile(m_hComm, &(spoBuffer->front()), spoBuffer->size(), &dwBytesWritten, NULL))
+   if (WriteFile(m_hComm, spoBuffer->data(), spoBuffer->size(), &dwBytesWritten, NULL))
    {
       eErrCode = (spoBuffer->size() == dwBytesWritten) ? CStatusCodes::SC_OK : CStatusCodes::SC_COM_WRITE_MISMATCH;
    }
