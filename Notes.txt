@@ -170,3 +170,13 @@ Implementing an input file stream...
 NOTE: We must not send or parse using ascii because the data can contain the byte value of zero!
 
 Replaced using CString as the buffer with std::vector<char>.
+Tested OK.
+Added vertical scroll bar to output window.
+
+
+
+
+
+
+TODO:
+- replace read operation with std::vector instead of CString. This means updating the code to the output window.
